@@ -1,0 +1,14 @@
+# NalaWatch: Mumbai Nullah and Creek Drain Outfalls YOLO Dataset Configuration
+# Structure for fine-tuning on localized CCTV & drone imagery
+
+path: ./data/mumbai  # dataset root dir
+train: images/train  # train images (relative to 'path')
+val: images/val      # val images (relative to 'path')
+test: images/test    # test images (optional)
+
+# Classes aligned with Kili plastic_in_river and ReWater
+names:
+  0: PLASTIC_BAG
+  1: PLASTIC_BOTTLE
+  2: OTHER_PLASTIC_WASTE
+  3: STYROFOAM_FRAGMENT
