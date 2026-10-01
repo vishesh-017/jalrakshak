@@ -1,0 +1,86 @@
+{
+  "model_version": "v1.2-synthetic-eval",
+  "generated_at": "2026-10-03T19:03:02.427040Z",
+  "data_provenance": {
+    "dataset_origin": "Synthetic scenario data generated under Mumbai monsoon conditions (data/observations.csv)",
+    "validation_status": "PROTOTYPE PIPELINE VALIDATION (TRAINED ON SYNTHETIC DATA, NOT FIELD-VALIDATED)",
+    "total_samples": 1400,
+    "train_samples": 979,
+    "test_samples": 421,
+    "test_split_strategy": "Chronological (First 70% Train, Last 30% Test \u2014 No future-data leakage)",
+    "positive_class_events": 613,
+    "negative_class_events": 787
+  },
+  "target_definition": "Relative likelihood of high visible plastic accumulation at a monitored outlet within 48 hours following rainfall.",
+  "model_comparisons": {
+    "rainfall_only_baseline": {
+      "name": "Rainfall-Only Threshold (\u226555mm)",
+      "type": "Single-feature threshold",
+      "precision": 0.927,
+      "recall": 0.458,
+      "f1_score": 0.613,
+      "roc_auc": null,
+      "confusion_matrix": [
+        [
+          249,
+          6
+        ],
+        [
+          90,
+          76
+        ]
+      ]
+    },
+    "model_a_heuristic": {
+      "name": "JalRakshak Heuristic Multi-Factor (Model A)",
+      "type": "Physics-informed rule-based score",
+      "precision": 0.949,
+      "recall": 0.669,
+      "f1_score": 0.784,
+      "roc_auc": null,
+      "confusion_matrix": [
+        [
+          249,
+          6
+        ],
+        [
+          55,
+          111
+        ]
+      ]
+    },
+    "model_b_xgboost": {
+      "name": "XGBoost Classifier (Model B)",
+      "type": "Gradient Boosted Decision Trees",
+      "precision": 0.821,
+      "recall": 0.855,
+      "f1_score": 0.838,
+      "roc_auc": 0.956,
+      "confusion_matrix": [
+        [
+          224,
+          31
+        ],
+        [
+          24,
+          142
+        ]
+      ]
+    }
+  },
+  "feature_importances": {
+    "water_depth_m": 0.3177,
+    "barrier_compromised_flag": 0.2737,
+    "rainfall_24h_mm": 0.0976,
+    "urban_density_idx": 0.0934,
+    "days_since_cleanup": 0.0887,
+    "forecast_24h_mm": 0.076,
+    "tide_level_m": 0.0529
+  },
+  "honest_limitations": [
+    "Trained on synthetic training records based on physical heuristic assumptions, not sensor-calibrated ground truth.",
+    "Visual accumulation severity is not equivalent to measured plastic mass.",
+    "Requires field sensor calibration across Mithi, Malad, and Trombay basins before operational municipal deployment.",
+    "Domain shift: Camera glare, monsoon turbidity, and low night light affect real-world camera detection accuracy."
+  ]
+}
