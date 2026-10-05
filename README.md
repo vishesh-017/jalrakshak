@@ -1,7 +1,5 @@
 # JalRakshak — Predictive Plastic Leakage Monitoring & Smart Cleanup System
 
-**Techfest IIT Bombay InnovateX — Theme 3: Plastic Pollution in Coastal Cities (Mumbai)**
-
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/Frontend-React%2019%20+%20Vite%208-61DAFB.svg)](https://vitejs.dev)
 [![Ultralytics YOLOv8](https://img.shields.io/badge/AI-YOLOv8-FF7043.svg)](https://github.com/ultralytics/ultralytics)
