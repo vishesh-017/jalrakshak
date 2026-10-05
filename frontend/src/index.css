@@ -1,0 +1,197 @@
+@import "leaflet/dist/leaflet.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 222 47% 4%;
+  --foreground: 210 40% 98%;
+  --card: 222 47% 6%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222 47% 6%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 187 92% 45%;
+  --primary-foreground: 222 47% 4%;
+  --secondary: 173 80% 40%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217 33% 12%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 346 87% 55%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217 33% 16%;
+  --input: 217 33% 16%;
+  --ring: 187 92% 45%;
+  --radius: 0.75rem;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #030712;
+  color: #f1f5f9;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(20, 184, 166, 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(2, 132, 199, 0.06) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+h1, h2, h3, .font-heading {
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Water motif subtle wave lines & contours on pure dark background */
+.water-waves-bg {
+  background-image: 
+    radial-gradient(rgba(6, 182, 212, 0.15) 1px, transparent 0),
+    radial-gradient(rgba(20, 184, 166, 0.1) 1px, transparent 0);
+  background-size: 24px 24px, 48px 48px;
+  background-position: 0 0, 12px 12px;
+}
+
+.water-contour-bg {
+  background-image: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
+                    radial-gradient(circle at 10% 20%, rgba(20, 184, 166, 0.1) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(244, 63, 94, 0.08) 0%, transparent 50%);
+}
+
+.ocean-gradient-hero {
+  background: linear-gradient(135deg, #020617 0%, #050f1e 40%, #07192d 80%, #09233f 100%);
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+.ocean-gradient-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 85% 15%, rgba(6, 182, 212, 0.2) 0%, transparent 60%),
+              radial-gradient(ellipse at 15% 85%, rgba(244, 63, 94, 0.15) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.ocean-card {
+  background: rgba(11, 20, 34, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(30, 48, 77, 0.8);
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  color: #f1f5f9;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ocean-card:hover {
+  border-color: rgba(6, 182, 212, 0.45);
+  box-shadow: 0 8px 32px -4px rgba(6, 182, 212, 0.2), inset 0 1px 0 rgba(6, 182, 212, 0.15);
+}
+
+.ocean-glass {
+  background: rgba(7, 16, 29, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+  color: #f1f5f9;
+}
+
+.ocean-glass-dark {
+  background: rgba(3, 7, 18, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  color: #f1f5f9;
+}
+
+.choke-pulse {
+  animation: chokeBeacon 1.8s infinite ease-in-out;
+}
+
+@keyframes chokeBeacon {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 14px rgba(244, 63, 94, 0);
+  }
+}
+
+.sensor-ping {
+  animation: sensorSonar 2.2s infinite ease-out;
+}
+
+@keyframes sensorSonar {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.ocean-glow-teal {
+  box-shadow: 0 0 25px -5px rgba(20, 184, 166, 0.25);
+}
+
+.ocean-glow-blue {
+  box-shadow: 0 0 25px -5px rgba(14, 165, 233, 0.25);
+}
+
+.ocean-glow-coral {
+  box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.25);
+}
+
+.wave-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(14, 165, 233, 0.3) 25%, rgba(20, 184, 166, 0.5) 50%, rgba(14, 165, 233, 0.3) 75%, transparent 100%);
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.75rem;
+  z-index: 10;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0d9488;
+}
+
+@keyframes waterPulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.08); opacity: 0.3; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.water-pulse {
+  animation: waterPulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes rippleWave {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+
+.animate-ripple {
+  animation: rippleWave 4s ease-in-out infinite;
+}
