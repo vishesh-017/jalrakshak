@@ -126,23 +126,3 @@ Evaluated on held-out chronological test split (N = 421 unseen future records):
 *Note: High precision in Model A minimizes false alarm dispatches; high recall in Model B catches complex tidal-monsoon interactions.*
 
 ---
-
-## 6. Open-Source Licenses & Attribution
-
-JalRakshak acknowledges and credits the following open-source projects:
-
-1. **AniLeo-01/Plastic-In-River-Detection**:
-   - Training pipeline for YOLOv8m on Kili `plastic_in_river` dataset (classes: `PLASTIC_BAG`, `PLASTIC_BOTTLE`, `OTHER_PLASTIC_WASTE`, `NOT_PLASTIC_WASTE`).
-   - Repository: [github.com/AniLeo-01/Plastic-In-River-Detection](https://github.com/AniLeo-01/Plastic-In-River-Detection)
-   - Dataset: [huggingface.co/datasets/Kili/plastic_in_river](https://huggingface.co/datasets/Kili/plastic_in_river)
-
-2. **SwastikGorai/ReWater**:
-   - Single-class YOLOv8m drone imagery reference for aerial floating plastic mats.
-   - License: **MIT License**.
-   - Repository: [github.com/SwastikGorai/ReWater](https://github.com/SwastikGorai/ReWater)
-
-3. **Third-Party Frameworks**:
-   - **Ultralytics YOLOv8**: Distributed under **AGPL-3.0**. Commercial usage requires Ultralytics commercial licensing.
-   - **Google OR-Tools**: Vehicle Routing Problem solver, licensed under **Apache 2.0**.
-   - **OpenStreetMap**: Map tiles & data © OpenStreetMap contributors, licensed under **ODbL**.
-   - **Open-Meteo**: Weather forecast and historical rainfall API under **CC BY 4.0**.
