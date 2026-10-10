@@ -15,6 +15,7 @@ import DroneMonitoringPage from './pages/DroneMonitoringPage';
 import FieldReportingPage from './pages/FieldReportingPage';
 import SatelliteMonitoringPage from './pages/SatelliteMonitoringPage';
 import MonsoonMonitoringPage from './pages/MonsoonMonitoringPage';
+import LandingPage from './pages/LandingPage';
 import { RbacProvider, useRbac } from './context/RbacContext';
 import { PanelLeftClose, PanelLeftOpen, Waves, Shield, KeyRound, UserCheck } from 'lucide-react';
 import { cn } from './lib/utils';
@@ -79,9 +80,6 @@ function MainLayout() {
 
   return (
     <div className="min-h-screen bg-[#020617] font-sans text-slate-100 antialiased flex selection:bg-cyan-500/30 selection:text-cyan-200">
-      {/* RBAC Login Modal */}
-      <LoginModal />
-
       {/* Navigation Sidebar */}
       <Sidebar collapsed={sidebarCollapsed} onToggleCollapse={toggleSidebar} />
 
@@ -136,7 +134,7 @@ function MainLayout() {
         {/* Page Routing (Role Protected) */}
         <main className="flex-1 p-4 md:p-6 bg-[#020617]">
           <Routes>
-            <Route path="/" element={<ProtectedRoute path="/"><OverviewPage /></ProtectedRoute>} />
+            <Route path="/overview" element={<ProtectedRoute path="/overview"><OverviewPage /></ProtectedRoute>} />
             <Route path="/map" element={<ProtectedRoute path="/map"><HotspotMapPage /></ProtectedRoute>} />
             <Route path="/drone" element={<ProtectedRoute path="/drone"><DroneMonitoringPage /></ProtectedRoute>} />
             <Route path="/worker" element={<ProtectedRoute path="/worker"><FieldReportingPage /></ProtectedRoute>} />
@@ -147,6 +145,7 @@ function MainLayout() {
             <Route path="/analytics" element={<ProtectedRoute path="/analytics"><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/simulator" element={<ProtectedRoute path="/simulator"><Simulator3DPage /></ProtectedRoute>} />
             <Route path="/monsoon" element={<ProtectedRoute path="/monsoon"><MonsoonMonitoringPage /></ProtectedRoute>} />
+            <Route path="*" element={<Navigate to="/overview" replace />} />
           </Routes>
         </main>
       </div>
@@ -158,7 +157,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <RbacProvider>
-        <MainLayout />
+        <LoginModal />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/*" element={<MainLayout />} />
+        </Routes>
       </RbacProvider>
     </BrowserRouter>
   );

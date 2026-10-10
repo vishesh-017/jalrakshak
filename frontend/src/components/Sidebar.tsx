@@ -37,7 +37,7 @@ const ALL_NAV_SECTIONS: NavSection[] = [
   {
     title: 'CORE COMMAND & MAPPING',
     items: [
-      { to: '/', label: 'Command Center', icon: LayoutDashboard },
+      { to: '/overview', label: 'Command Center', icon: LayoutDashboard },
       { to: '/map', label: 'Hotspot GIS Map', icon: MapPin },
       { to: '/monsoon', label: 'IoT Smart Alerts', icon: CloudRain, badge: 'NEW' },
     ],

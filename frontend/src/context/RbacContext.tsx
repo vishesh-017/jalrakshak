@@ -53,7 +53,7 @@ export const PERSONAS: Record<string, UserProfile> = {
     zoneScope: 'All Mumbai Basins (City-wide Command)',
     allowedBasins: ['Mithi River Basin', 'Malad Creek Basin', 'Trombay / Thane Creek Basin'],
     allowedRoutes: [
-      '/',
+      '/overview',
       '/map',
       '/drone',
       '/worker',
@@ -65,7 +65,7 @@ export const PERSONAS: Record<string, UserProfile> = {
       '/simulator',
       '/monsoon'
     ],
-    homeRoute: '/',
+    homeRoute: '/overview',
     avatarBg: 'from-emerald-600 to-teal-800',
     canApproveDispatch: true,
     canConfigureSensors: true,
