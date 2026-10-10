@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { Activity, Battery, Signal, Radio, Settings2, RefreshCw } from 'lucide-react';
+import { Activity, Battery, Signal, Radio, Settings2, RefreshCw, MapPin } from 'lucide-react';
+import L from 'leaflet';
 import { getIoTDevices, getSites, ingestIoTSensorData, type IoTDevice } from '../lib/api';
 import type { MonitoringSite } from '../types';
 import { useRbac } from '../context/RbacContext';
@@ -16,6 +17,11 @@ export default function IoTManagementPage() {
   // Simulator state
   const [simWaterLevel, setSimWaterLevel] = useState(1.0);
   const [simPlastic, setSimPlastic] = useState("Low");
+
+  // Map state
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.Marker[]>([]);
   
   const load = async () => {
     try {
@@ -64,6 +70,64 @@ export default function IoTManagementPage() {
     load();
   };
 
+  useEffect(() => {
+    if (loading || !mapContainerRef.current) return;
+    if (mapRef.current) return;
+
+    const map = L.map(mapContainerRef.current, {
+      center: [19.0520, 72.8580], // Central Mumbai
+      zoom: 11,
+      zoomControl: true,
+    });
+
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 18,
+      attribution: '&copy; Esri &copy; OpenStreetMap contributors',
+    }).addTo(map);
+
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 18,
+    }).addTo(map);
+
+    const pinIcon = L.divIcon({
+      className: 'iot-map-pin',
+      html: '<div style="background-color:#22d3ee;width:14px;height:14px;border-radius:50%;border:2px solid #ffffff;box-shadow:0 0 10px rgba(34,211,238,0.8);"></div>',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
+
+    // Plot sites
+    sites.forEach(site => {
+      const device = devices.find(d => d.site_id === site.id);
+      if (device) {
+        const marker = L.marker([site.latitude, site.longitude], { icon: pinIcon }).addTo(map);
+        marker.bindPopup(`
+          <div style="background:#020617; color:#fff; border:1px solid #164e63; padding:8px; border-radius:8px;">
+            <strong style="color:#22d3ee;">${device.id}</strong><br/>
+            ${site.name}<br/>
+            <small style="color:#94a3b8;">Water Lvl: ${device.water_level_cm?.toFixed(1) ?? '--'} cm</small><br/>
+            <small style="color:#94a3b8;">Status: ${device.status}</small>
+          </div>
+        `);
+        markersRef.current.push(marker);
+      }
+    });
+
+    mapRef.current = map;
+
+    setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    }, 100);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markersRef.current = [];
+    };
+  }, [loading, sites, devices]);
+
   if (loading) return <div className="p-8 text-cyan-400 flex items-center justify-center h-full">Loading IoT telemetry...</div>;
 
   return (
@@ -78,6 +142,24 @@ export default function IoTManagementPage() {
           Refresh
         </Button>
       </div>
+
+      {/* IoT Devices Map */}
+      <Card className="bg-[#050e1b] border-cyan-900/50 overflow-hidden shadow-xl">
+        <CardHeader className="pb-3 border-b border-cyan-900/50 flex flex-row items-center justify-between">
+          <CardTitle className="text-sm text-white flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-cyan-400" />
+            Live IoT Device Locations
+          </CardTitle>
+          <Badge className="bg-cyan-950/40 text-cyan-400 border border-cyan-800">
+            {devices.length} Online Nodes
+          </Badge>
+        </CardHeader>
+        <div 
+          ref={mapContainerRef} 
+          className="w-full relative z-0 bg-slate-950"
+          style={{ minHeight: '350px' }}
+        />
+      </Card>
       
       {/* Simulator Control Panel */}
       <Card className="bg-[#050e1b] border-cyan-900/50">
