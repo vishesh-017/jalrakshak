@@ -111,6 +111,13 @@ export default function FieldReportingPage() {
 
     mapRef.current = map;
 
+    // Force map to recalculate its size after rendering
+    setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    }, 100);
+
     return () => {
       map.remove();
       mapRef.current = null;

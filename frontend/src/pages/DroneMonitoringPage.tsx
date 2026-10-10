@@ -140,9 +140,16 @@ export default function DroneMonitoringPage() {
 
     miniMapRef.current = map;
 
+    setTimeout(() => {
+      if (miniMapRef.current) {
+        miniMapRef.current.invalidateSize();
+      }
+    }, 100);
+
     return () => {
       map.remove();
       miniMapRef.current = null;
+      markerRef.current = null;
     };
   }, [mode]);
 
