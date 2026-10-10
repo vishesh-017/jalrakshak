@@ -86,6 +86,12 @@ function MiniMapPreview({ sites }: { sites: MonitoringSite[] }) {
       maxZoom: 18,
     }).addTo(mapRef.current);
 
+    setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    }, 100);
+
     return () => {
       mapRef.current?.remove();
       mapRef.current = null;
