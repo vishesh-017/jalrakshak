@@ -464,7 +464,7 @@ function IncidentPanel({ incident, onRefresh }: { incident: Incident; onRefresh:
               </div>
             )}
 
-            {incident.status !== 'Open' && user.canApproveDispatch && (
+            {incident.status !== 'Open' && (user.canApproveDispatch || user.role === 'INSPECTOR') && (
               <>
                 <button
                   onClick={() => setResolveOpen(o => !o)}
