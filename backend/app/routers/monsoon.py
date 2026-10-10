@@ -123,7 +123,20 @@ _MONSOON_STATIONS: Dict[str, Dict[str, Any]] = {
 _INCIDENTS: Dict[str, Dict[str, Any]] = {}
 
 # Live reading store for simulation
-_LIVE_READINGS: Dict[str, Dict[str, Any]] = {}
+_LIVE_READINGS: Dict[str, Dict[str, Any]] = {
+    sid: {
+        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "water_depth_m": st["baseline_depth_m"],
+        "flow_velocity_mps": st["baseline_flow_mps"],
+        "rainfall_mm": 0.0,
+        "anomaly_result": {
+            "status": "NORMAL",
+            "risk_score": 0.0,
+            "risk_category": "Normal",
+            "anomaly_factors": []
+        }
+    } for sid, st in _MONSOON_STATIONS.items()
+}
 
 
 # ---------------------------------------------------------------------------

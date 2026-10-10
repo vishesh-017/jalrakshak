@@ -734,6 +734,19 @@ function ManualControls({ stationId, station, onSubmit }: {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<any>(null);
 
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${station.latitude}&longitude=${station.longitude}&current=precipitation`);
+        const data = await res.json();
+        if (data?.current?.precipitation !== undefined) {
+          setRainfall(data.current.precipitation.toString());
+        }
+      } catch {}
+    };
+    fetchWeather();
+  }, [stationId, station.latitude, station.longitude]);
+
   const submit = async () => {
     setBusy(true);
     try {
@@ -779,7 +792,24 @@ function ManualControls({ stationId, station, onSubmit }: {
       <div className="p-4 space-y-4">
         {slider('Water Depth', waterDepth, setWaterDepth, 0, 3, 0.01, 'm', 'text-cyan-300')}
         {station.has_flow_sensor && slider('Flow Velocity', flowVelocity, setFlowVelocity, 0, 3, 0.01, 'm/s', 'text-blue-300')}
-        {slider('Rainfall Intensity', rainfall, setRainfall, 0, 80, 0.5, 'mm/h', 'text-indigo-300')}
+        
+        <div>
+          <div className="flex justify-between items-center mb-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              Rainfall Intensity
+              <span className="text-[8px] bg-indigo-500/20 text-indigo-300 px-1 py-0.5 rounded border border-indigo-500/30">Auto-Fetched Live</span>
+            </label>
+            <span className={cn('text-sm font-bold text-indigo-300')}>{parseFloat(rainfall || '0').toFixed(2)} mm/h</span>
+          </div>
+          <input
+            type="range" min={0} max={80} step={0.5} value={rainfall}
+            onChange={e => setRainfall(e.target.value)}
+            className="w-full accent-cyan-500"
+          />
+          <div className="flex justify-between text-[9px] text-slate-600">
+            <span>0</span><span>80</span>
+          </div>
+        </div>
 
         <button
           disabled={busy}
