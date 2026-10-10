@@ -201,9 +201,9 @@ export default function AnalyticsPage() {
               <p className="text-[10px] text-slate-400 mt-1">Current pilot phase</p>
             </div>
             <div className="bg-[#030914] border border-cyan-900/40 rounded-xl p-4 text-center shadow-xs">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Illustrative Demo Ledger Recovery</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Illustrative Verified Ledger Recovery</p>
               <p className="text-3xl font-black text-emerald-400 font-heading font-mono mt-1">{((metrics?.total_plastic_recovered_kg ?? 0) / 1000).toFixed(1)} t</p>
-              <p className="text-[10px] text-slate-400 mt-1">Recorded in demo database</p>
+              <p className="text-[10px] text-slate-400 mt-1">Recorded in operational database</p>
             </div>
           </div>
 

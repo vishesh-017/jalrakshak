@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { getSampleFeeds, analyzeSample, analyzeUpload, getDetections, getSites } from '../lib/api';
+import { getSampleFeeds, analyzeSample, analyzeUpload, getDetections, getSites, getImageUrl } from '../lib/api';
 import type { PlasticDetection, SampleFeed, MonitoringSite } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -47,7 +47,7 @@ export default function DetectionPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedSample, setSelectedSample] = useState<SampleFeed | null>(null);
   const [selectedSiteId, setSelectedSiteId] = useState('');
-  const [confidence, setConfidence] = useState(0.45);
+  const [confidence, setConfidence] = useState(0.10);
   const [modelType, setModelType] = useState('yolov8m');
   const [tab, setTab] = useState<'sample' | 'upload'>('sample');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -209,29 +209,6 @@ export default function DetectionPage() {
               </p>
             </div>
 
-            {/* Confidence Slider with Dynamic Output */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-[11px] font-semibold text-slate-300">Detection Confidence Threshold</span>
-                <span className="font-mono font-bold text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/40">
-                  {(confidence * 100).toFixed(0)}%
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0.1"
-                max="0.85"
-                step="0.05"
-                value={confidence}
-                onChange={e => setConfidence(parseFloat(e.target.value))}
-                className="w-full accent-cyan-400 cursor-pointer"
-              />
-              <div className="flex justify-between text-[10px] text-slate-400 font-mono">
-                <span>0.10 (High Recall)</span>
-                <span>0.85 (High Precision)</span>
-              </div>
-            </div>
-
             {/* Mode Content */}
             {tab === 'sample' ? (
               <div className="space-y-2 pt-1">
@@ -279,7 +256,7 @@ export default function DetectionPage() {
                   Run AI Plastic Detection
                 </Button>
                 <p className="text-[10px] text-slate-500 text-center">
-                  *Results labelled SIMULATED — demonstration training imagery
+                  *Results labelled SIMULATED — operational calibration imagery
                 </p>
               </div>
             ) : (
@@ -339,10 +316,10 @@ export default function DetectionPage() {
                 {/* Imagery Frame with Lens Reticle Overlay */}
                 <div className="relative bg-black flex items-center justify-center overflow-hidden min-h-[280px] max-h-[380px]">
                   <img
-                    src={`http://localhost:8000${result.annotated_image_url}`}
+                    src={getImageUrl(result.annotated_image_url)}
                     alt="AI Annotated Creek Debris"
                     className="w-full h-full object-contain"
-                    onError={e => { (e.target as HTMLImageElement).src = `http://localhost:8000${result.original_image_url}`; }}
+                    onError={e => { (e.target as HTMLImageElement).src = getImageUrl(result.original_image_url); }}
                   />
 
                   {/* High-Tech HUD Reticle Elements */}

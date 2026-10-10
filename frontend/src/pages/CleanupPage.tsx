@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import {
   getCleanupTasks, getSites, createCleanupTask, updateCleanupTask,
   getCleanupRecommendations, optimizeCleanupRoute,
@@ -10,6 +11,7 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { LoadingSpinner, ErrorMessage, EmptyState } from '../components/ui/States';
 import { priorityBadge, statusBadge, riskBadgeColor, fmtDateTime } from '../lib/utils';
+import { useRbac } from '../context/RbacContext';
 import {
   Navigation as NavigationIcon,
   CheckCircle2,
@@ -23,7 +25,9 @@ import {
   ArrowRight,
   Shield,
   Radio,
-  RotateCcw
+  RotateCcw,
+  MapPin,
+  ExternalLink
 } from 'lucide-react';
 
 const TEAMS = [
@@ -42,6 +46,9 @@ const EQUIPMENT = [
 ];
 
 export default function CleanupPage() {
+  const [searchParams] = useSearchParams();
+  const { roleConfig } = useRbac();
+
   const [tasks, setTasks] = useState<CleanupTask[]>([]);
   const [sites, setSites] = useState<MonitoringSite[]>([]);
   const [recommendations, setRecommendations] = useState<RecommendationItem[]>([]);
@@ -70,7 +77,18 @@ export default function CleanupPage() {
       setTasks(t);
       setSites(s);
       setRecommendations(recs);
-      if (s.length > 0 && !form.site_id) setForm(f => ({ ...f, site_id: s[0].id }));
+
+      const siteParam = searchParams.get('site');
+      const hotspotParam = searchParams.get('hotspot');
+      if (siteParam) {
+        setForm(f => ({
+          ...f,
+          site_id: siteParam,
+          title: hotspotParam ? `Clean Hotspot ${hotspotParam} at ${siteParam}` : `Clear outlet at ${siteParam}`
+        }));
+      } else if (s.length > 0 && !form.site_id) {
+        setForm(f => ({ ...f, site_id: s[0].id }));
+      }
     } catch (e: unknown) { setError((e as Error).message); }
     finally { setLoading(false); }
   }
@@ -159,21 +177,30 @@ export default function CleanupPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            onClick={handleOptimizeRoute}
-            loading={routingLoading}
-            className="bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 hover:from-teal-500 hover:to-blue-500 text-white font-bold text-xs shadow-md shadow-cyan-950/50"
-          >
-            ⚡ Optimize Route (OR-Tools)
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setShowForm(!showForm)}
-            className="text-xs border-cyan-700/60 text-cyan-300 hover:bg-cyan-950/60"
-          >
-            <Plus className="w-3.5 h-3.5 mr-1 text-cyan-400" />
-            + Manual Task
-          </Button>
+          {roleConfig.canApproveDispatch ? (
+            <>
+              <Button
+                onClick={handleOptimizeRoute}
+                loading={routingLoading}
+                className="bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 hover:from-teal-500 hover:to-blue-500 text-white font-bold text-xs shadow-md shadow-cyan-950/50"
+              >
+                ⚡ Optimize Route (OR-Tools)
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowForm(!showForm)}
+                className="text-xs border-cyan-700/60 text-cyan-300 hover:bg-cyan-950/60"
+              >
+                <Plus className="w-3.5 h-3.5 mr-1 text-cyan-400" />
+                + Manual Task
+              </Button>
+            </>
+          ) : (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 text-xs font-bold shadow-xs">
+              <Truck className="w-4 h-4 text-cyan-400" />
+              <span>Assigned Ground Tasks View</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -460,10 +487,16 @@ export default function CleanupPage() {
                         </div>
                         <p className="text-xs text-slate-300 mt-1">{task.team_name} · {task.equipment_assigned}</p>
                         {site && (
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
                             <span className="text-xs text-slate-400">Site:</span>
                             <span className="text-xs font-bold text-cyan-300">{site.name}</span>
                             <Badge className={riskBadgeColor(site.current_risk_level)}>{site.current_risk_level}</Badge>
+                            <Link
+                              to={`/map?highlight=${task.site_id}`}
+                              className="text-[10.5px] font-bold text-cyan-400 hover:text-cyan-300 bg-cyan-950/70 border border-cyan-500/30 px-2 py-0.5 rounded flex items-center gap-1 transition-colors"
+                            >
+                              <MapPin className="w-3 h-3" /> View on GIS Map
+                            </Link>
                           </div>
                         )}
                         <div className="flex items-center gap-4 mt-1.5 text-xs text-slate-400">

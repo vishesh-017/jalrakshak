@@ -20,7 +20,10 @@ import {
   Layers,
   Sparkles,
   Shield,
-  Eye
+  Eye,
+  Orbit,
+  UserCheck,
+  Cpu
 } from 'lucide-react';
 import { getDashboardMetrics, getSites, getCleanupTasks } from '../lib/api';
 import type { DashboardMetrics, MonitoringSite, CleanupTask, RiskLevel } from '../types';
@@ -455,7 +458,7 @@ export default function OverviewPage() {
           value={`${fmt(metrics.verified_plastic_recovered_kg, 0)} kg`}
           sub="Logged in cryptographic ledger"
           variant="emerald"
-          to="/recovery"
+          to="/cleanup"
           badgeText="EPR AUDIT"
           badgeColor="bg-emerald-950 text-emerald-300 border border-emerald-500/40"
           icon={ShieldCheck}
@@ -473,6 +476,87 @@ export default function OverviewPage() {
           icon={Camera}
           contextNote="Water ripple filter enabled"
         />
+      </div>
+
+      {/* 3 Detection Modules Direct Quick-Access Deck */}
+      <div className="p-4 rounded-2xl bg-[#040c18] border border-cyan-500/30 shadow-xl space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-extrabold text-white flex items-center gap-2 font-heading">
+              <Sparkles className="w-4 h-4 text-cyan-400" />
+              <span>Multi-Source Marine & Creek Surveillance Pipeline</span>
+              <Badge className="bg-cyan-950 text-cyan-300 border-cyan-500/40 text-[10px]">Mumbai Boundary Enforced</Badge>
+            </h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Three independent detection streams feeding one centralized geolocated hotspot map & risk engine.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/map')}
+            className="text-xs font-bold text-cyan-300 hover:text-cyan-200 flex items-center gap-1"
+          >
+            <span>Live GIS Map</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div
+            onClick={() => navigate('/iot-management')}
+            className="p-3.5 rounded-xl border border-cyan-500/20 bg-gradient-to-br from-cyan-950/40 to-slate-900/60 hover:border-cyan-400/60 cursor-pointer transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="p-2 rounded-lg bg-cyan-500/10 text-cyan-400 group-hover:scale-110 transition-transform">
+                <Cpu className="w-4 h-4" />
+              </span>
+              <Badge className="bg-cyan-950 text-cyan-300 text-[9px] border-cyan-500/30">MODULE 1</Badge>
+            </div>
+            <h4 className="font-bold text-xs text-white mt-2">IoT Auto Telemetry</h4>
+            <p className="text-[10px] text-slate-400 mt-0.5">ESP32 water level sensors, sonar depth & heartbeat monitor</p>
+          </div>
+
+          <div
+            onClick={() => navigate('/drone')}
+            className="p-3.5 rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-950/40 to-slate-900/60 hover:border-amber-400/60 cursor-pointer transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="p-2 rounded-lg bg-amber-500/10 text-amber-400 group-hover:scale-110 transition-transform">
+                <NavigationIcon className="w-4 h-4" />
+              </span>
+              <Badge className="bg-amber-950 text-amber-300 text-[9px] border-amber-500/30">MODEL A (YOLOv8)</Badge>
+            </div>
+            <h4 className="font-bold text-xs text-white mt-2">Drone Aerial Surveys</h4>
+            <p className="text-[10px] text-slate-400 mt-0.5">Pretrained Saigon River model, EXIF GPS tags & high-res tiles</p>
+          </div>
+
+          <div
+            onClick={() => navigate('/satellite')}
+            className="p-3.5 rounded-xl border border-purple-500/20 bg-gradient-to-br from-purple-950/40 to-slate-900/60 hover:border-purple-400/60 cursor-pointer transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="p-2 rounded-lg bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
+                <Orbit className="w-4 h-4" />
+              </span>
+              <Badge className="bg-purple-950 text-purple-300 text-[9px] border-purple-500/30">MODEL B (MARIDA)</Badge>
+            </div>
+            <h4 className="font-bold text-xs text-white mt-2">Satellite Marine Debris</h4>
+            <p className="text-[10px] text-slate-400 mt-0.5">Sentinel-2 10m MSI spectral FDI anomaly slicks & raster chips</p>
+          </div>
+
+          <div
+            onClick={() => navigate('/worker')}
+            className="p-3.5 rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/40 to-slate-900/60 hover:border-emerald-400/60 cursor-pointer transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:scale-110 transition-transform">
+                <UserCheck className="w-4 h-4" />
+              </span>
+              <Badge className="bg-emerald-950 text-emerald-300 text-[9px] border-emerald-500/30">MODULE 3</Badge>
+            </div>
+            <h4 className="font-bold text-xs text-white mt-2">Field Worker Reporting</h4>
+            <p className="text-[10px] text-slate-400 mt-0.5">Mobile ground photos, device GPS, map pin & operator verification</p>
+          </div>
+        </div>
       </div>
 
       {/* Choke Alerts + Map Preview Row */}
@@ -650,7 +734,7 @@ export default function OverviewPage() {
               </AreaChart>
             </ResponsiveContainer>
             <p className="text-[10px] text-slate-500 text-right mt-1">
-              *Note: Curves demonstrate simulated correlation between rainfall flushes and debris accumulation; not sensor-measured values.
+              *Note: Curves display simulated correlation between rainfall flushes and debris accumulation; not sensor-measured values.
             </p>
           </CardContent>
         </Card>
