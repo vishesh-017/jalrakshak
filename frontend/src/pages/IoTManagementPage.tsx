@@ -13,7 +13,6 @@ export default function IoTManagementPage() {
   
   // Simulator state
   const [simWaterLevel, setSimWaterLevel] = useState(1.0);
-  const [simRainfall, setSimRainfall] = useState(0);
   const [simPlastic, setSimPlastic] = useState("Low");
   
   const load = async () => {
@@ -31,11 +30,26 @@ export default function IoTManagementPage() {
   useEffect(() => { load(); }, []);
 
   const sendSimulatedPayload = async (siteId: string) => {
+    let fetchedRainfall = 0;
+    const site = sites.find(s => s.id === siteId);
+    
+    if (site) {
+      try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${site.latitude}&longitude=${site.longitude}&current=precipitation`);
+        const data = await res.json();
+        if (data?.current?.precipitation !== undefined) {
+          fetchedRainfall = data.current.precipitation;
+        }
+      } catch (err) {
+        console.error("Open-Meteo API Error:", err);
+      }
+    }
+
     await ingestIoTSensorData({
       device_id: `ESP32-${siteId}`,
       timestamp: new Date().toISOString(),
       water_level_cm: simWaterLevel * 100, // convert m to cm
-      rainfall_mm: simRainfall,
+      rainfall_mm: fetchedRainfall,
       plastic_detection: simPlastic,
       camera_status: "Operational",
       battery_level: 95.0,
@@ -68,7 +82,7 @@ export default function IoTManagementPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-xs text-slate-400">Water Level (m)</label>
               <input 
@@ -76,15 +90,6 @@ export default function IoTManagementPage() {
                 step="0.1" 
                 value={simWaterLevel} 
                 onChange={e => setSimWaterLevel(parseFloat(e.target.value))}
-                className="w-full bg-[#030914] border border-cyan-900/50 rounded px-3 py-1.5 text-white text-sm mt-1 focus:outline-none focus:border-cyan-500"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-slate-400">Rainfall (mm)</label>
-              <input 
-                type="number" 
-                value={simRainfall} 
-                onChange={e => setSimRainfall(parseFloat(e.target.value))}
                 className="w-full bg-[#030914] border border-cyan-900/50 rounded px-3 py-1.5 text-white text-sm mt-1 focus:outline-none focus:border-cyan-500"
               />
             </div>
@@ -102,7 +107,13 @@ export default function IoTManagementPage() {
             </div>
           </div>
           <div className="pt-2">
-            <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">Trigger Scenario for Site:</p>
+            <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide flex items-center justify-between">
+              <span>Trigger Scenario for Site:</span>
+              <span className="text-[10px] text-cyan-500 normal-case flex items-center gap-1 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-900/50">
+                <RefreshCw className="w-3 h-3" />
+                Rainfall auto-fetched via Open-Meteo
+              </span>
+            </p>
             <div className="flex gap-2 flex-wrap">
               {sites.map(s => (
                 <Button 
