@@ -69,7 +69,7 @@ export default function FieldReportingPage() {
   const markerRef = useRef<L.Marker | null>(null);
 
   useEffect(() => {
-    if (!mapContainerRef.current) return;
+    if (activeTab !== 'submit' || !mapContainerRef.current) return;
     if (mapRef.current) return;
 
     const map = L.map(mapContainerRef.current, {
@@ -114,8 +114,9 @@ export default function FieldReportingPage() {
     return () => {
       map.remove();
       mapRef.current = null;
+      markerRef.current = null;
     };
-  }, []);
+  }, [activeTab]);
 
   const handleUseBrowserGps = () => {
     if (!navigator.geolocation) {
