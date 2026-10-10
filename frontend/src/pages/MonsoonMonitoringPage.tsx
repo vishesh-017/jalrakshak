@@ -851,9 +851,17 @@ export default function MonsoonMonitoringPage() {
   const [selectedStation, setSelectedStation] = useState<MonsoonStation | null>(null);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [openIncident, setOpenIncident] = useState<Incident | null>(null);
-  const [tab, setTab] = useState<'station' | 'incidents'>('station');
+  const [tab, setTab] = useState<'station' | 'incidents'>(user.role === 'INSPECTOR' ? 'incidents' : 'station');
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<any>(null);
+
+  useEffect(() => {
+    if (user.role === 'INSPECTOR') {
+      setTab('incidents');
+    } else {
+      setTab('station');
+    }
+  }, [user.role]);
 
   const loadStations = useCallback(async () => {
     try {
@@ -869,12 +877,15 @@ export default function MonsoonMonitoringPage() {
   const loadIncidents = useCallback(async () => {
     try {
       const data = await apiFetch<Incident[]>('/monsoon/incidents');
-      const filtered = user.zoneScope === 'All Mumbai Basins (City-wide Command)'
+      let filtered = user.zoneScope === 'All Mumbai Basins (City-wide Command)'
         ? data
         : data.filter(i => user.allowedBasins.includes(i.zone));
+      if (user.role === 'INSPECTOR') {
+        filtered = filtered.filter(i => i.inspector_name === user.name);
+      }
       setIncidents(filtered);
     } catch { /* ignore */ }
-  }, [user.zoneScope, user.allowedBasins]);
+  }, [user.zoneScope, user.allowedBasins, user.role, user.name]);
 
   const loadSummary = useCallback(async () => {
     try {
@@ -949,7 +960,7 @@ export default function MonsoonMonitoringPage() {
       </div>
 
       {/* Summary Bar */}
-      {summary && (
+      {summary && user.role !== 'INSPECTOR' && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {[
             { label: 'Total Stations', value: summary.total_stations, color: 'text-slate-300', icon: Radio },
@@ -972,20 +983,26 @@ export default function MonsoonMonitoringPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left: Station List */}
         <div className="space-y-2">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Monitoring Stations</p>
-          {stations.map(s => (
-            <StationCard
-              key={s.id}
-              station={s}
-              selected={selectedId === s.id}
-              onClick={() => { setSelectedId(s.id); setTab('station'); }}
-            />
-          ))}
+          {user.role !== 'INSPECTOR' && (
+            <>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Monitoring Stations</p>
+              {stations.map(s => (
+                <StationCard
+                  key={s.id}
+                  station={s}
+                  selected={selectedId === s.id}
+                  onClick={() => { setSelectedId(s.id); setTab('station'); }}
+                />
+              ))}
+            </>
+          )}
 
           {/* Incident list preview */}
           {incidents.filter(i => i.status !== 'Resolved').length > 0 && (
             <div className="mt-4 space-y-2">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Open Incidents</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">
+                {user.role === 'INSPECTOR' ? 'Assigned Incidents' : 'Open Incidents'}
+              </p>
               {incidents.filter(i => i.status !== 'Resolved').map(inc => (
                 <button
                   key={inc.id}
@@ -1014,15 +1031,17 @@ export default function MonsoonMonitoringPage() {
         <div className="lg:col-span-2 space-y-4">
           {/* Tabs */}
           <div className="flex gap-1 bg-[#040a14] rounded-xl p-1 border border-slate-700/50">
-            <button
-              onClick={() => setTab('station')}
-              className={cn(
-                'flex-1 py-2 text-xs font-bold rounded-lg transition-colors',
-                tab === 'station' ? 'bg-cyan-950/80 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200'
-              )}
-            >
-              Station Dashboard
-            </button>
+            {user.role !== 'INSPECTOR' && (
+              <button
+                onClick={() => setTab('station')}
+                className={cn(
+                  'flex-1 py-2 text-xs font-bold rounded-lg transition-colors',
+                  tab === 'station' ? 'bg-cyan-950/80 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200'
+                )}
+              >
+                Station Dashboard
+              </button>
+            )}
             <button
               onClick={() => setTab('incidents')}
               className={cn(
