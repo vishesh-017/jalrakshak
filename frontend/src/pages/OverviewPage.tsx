@@ -465,17 +465,7 @@ export default function OverviewPage() {
           contextNote="SHA-256 tamper-proof chain"
         />
 
-        <ClickableMetricCard
-          label="Optical Detections"
-          value={metrics.recent_detections_count}
-          sub="CCTV creek feeds & drones"
-          variant="cyan"
-          to="/detection"
-          badgeText="YOLOv8m"
-          badgeColor="bg-cyan-950 text-cyan-300 border border-cyan-500/40"
-          icon={Camera}
-          contextNote="Water ripple filter enabled"
-        />
+
       </div>
 
       {/* 3 Detection Modules Direct Quick-Access Deck */}

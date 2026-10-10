@@ -38,7 +38,6 @@ const ALL_NAV_SECTIONS: NavSection[] = [
     title: 'SURVEILLANCE & AI DETECTION',
     items: [
       { to: '/', label: 'Command Center', icon: LayoutDashboard },
-      { to: '/detection', label: 'AI Optical Scan', icon: Scan, badge: 'YOLOv8' },
       { to: '/map', label: 'Hotspot GIS Map', icon: MapPin },
       { to: '/drone', label: 'Drone Aerial (ReWater)', icon: Navigation, badge: 'VIDEO' },
       { to: '/worker', label: 'Field Reporting', icon: UserCheck, badge: 'BMC' },

@@ -6,7 +6,7 @@ import AccessDenied from './components/AccessDenied';
 import OverviewPage from './pages/OverviewPage';
 import Simulator3DPage from './pages/Simulator3DPage';
 import HotspotMapPage from './pages/HotspotMapPage';
-import DetectionPage from './pages/DetectionPage';
+
 import ForecastPage from './pages/ForecastPage';
 import CleanupPage from './pages/CleanupPage';
 import AnalyticsPage from './pages/AnalyticsPage';
@@ -137,7 +137,6 @@ function MainLayout() {
         <main className="flex-1 p-4 md:p-6 bg-[#020617]">
           <Routes>
             <Route path="/" element={<ProtectedRoute path="/"><OverviewPage /></ProtectedRoute>} />
-            <Route path="/detection" element={<ProtectedRoute path="/detection"><DetectionPage /></ProtectedRoute>} />
             <Route path="/map" element={<ProtectedRoute path="/map"><HotspotMapPage /></ProtectedRoute>} />
             <Route path="/drone" element={<ProtectedRoute path="/drone"><DroneMonitoringPage /></ProtectedRoute>} />
             <Route path="/worker" element={<ProtectedRoute path="/worker"><FieldReportingPage /></ProtectedRoute>} />

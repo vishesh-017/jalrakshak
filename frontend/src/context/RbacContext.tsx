@@ -41,7 +41,7 @@ export type RoleConfig = UserProfile;
 export const PERSONAS: Record<string, UserProfile> = {
   SUPER_ADMIN: {
     id: 'SUPER_ADMIN',
-    name: 'Rahul',
+    name: 'Rahul Sharma',
     username: 'admin',
     role: 'SUPER_ADMIN',
     title: 'Municipal Commissioner & Disaster HQ',
@@ -53,7 +53,6 @@ export const PERSONAS: Record<string, UserProfile> = {
     allowedBasins: ['Mithi River Basin', 'Malad Creek Basin', 'Trombay / Thane Creek Basin'],
     allowedRoutes: [
       '/',
-      '/detection',
       '/map',
       '/drone',
       '/worker',
@@ -110,7 +109,7 @@ export const PERSONAS: Record<string, UserProfile> = {
     department: 'BMC Rapid Aerial Reconnaissance Wing',
     zoneScope: 'Mithi River & Malad Creek Flight Corridors',
     allowedBasins: ['Mithi River Basin', 'Malad Creek Basin'],
-    allowedRoutes: ['/drone', '/detection', '/map'],
+    allowedRoutes: ['/drone', '/map'],
     homeRoute: '/drone',
     avatarBg: 'from-amber-500 to-yellow-700',
     canApproveDispatch: false,
