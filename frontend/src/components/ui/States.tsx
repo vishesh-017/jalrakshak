@@ -1,12 +1,19 @@
 interface LoadingProps {
   text?: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export function LoadingSpinner({ text = 'Loading...' }: LoadingProps) {
+export function LoadingSpinner({ text, size = 'md' }: LoadingProps) {
+  const sizeClasses = {
+    sm: 'w-4 h-4 border-2',
+    md: 'w-8 h-8 border-4',
+    lg: 'w-12 h-12 border-4',
+  }[size];
+
   return (
-    <div className="flex flex-col items-center justify-center py-16 gap-3">
-      <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-      <p className="text-sm text-slate-500">{text}</p>
+    <div className={`flex flex-col items-center justify-center ${size === 'sm' ? 'py-1' : 'py-8'} gap-2`}>
+      <div className={`${sizeClasses} border-cyan-500/30 border-t-cyan-400 rounded-full animate-spin`} />
+      {text && <p className="text-sm text-slate-400">{text}</p>}
     </div>
   );
 }

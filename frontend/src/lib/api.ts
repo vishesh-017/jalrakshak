@@ -13,6 +13,14 @@ import type {
 
 const BASE = 'http://localhost:8000/api';
 
+export function getImageUrl(url?: any): string {
+  if (!url || typeof url !== 'string') return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('/api/')) return `http://localhost:8000${url}`;
+  if (url.startsWith('/')) return `http://localhost:8000${url}`;
+  return `http://localhost:8000/api/static/uploads/${url}`;
+}
+
 function formatError(err: any, status: number): string {
   if (!err) return `HTTP ${status}`;
   if (typeof err.detail === 'string') return err.detail;
@@ -91,7 +99,7 @@ export const getDetections = (siteId?: string, limit = 50) =>
 
 export const getSampleFeeds = () => req<SampleFeed[]>('/detections/samples');
 
-export const analyzeSample = (filename: string, siteId?: string, confidence = 0.45, modelType = 'ground') => {
+export const analyzeSample = (filename: string, siteId?: string, confidence = 0.10, modelType = 'ground') => {
   const fd = new FormData();
   fd.append('sample_filename', filename);
   if (siteId) fd.append('site_id', siteId);
@@ -107,7 +115,7 @@ export const analyzeSample = (filename: string, siteId?: string, confidence = 0.
   });
 };
 
-export const analyzeUpload = (file: File, siteId?: string, confidence = 0.45, modelType = 'ground') => {
+export const analyzeUpload = (file: File, siteId?: string, confidence = 0.10, modelType = 'ground') => {
   const fd = new FormData();
   fd.append('file', file);
   if (siteId) fd.append('site_id', siteId);
@@ -237,4 +245,191 @@ export const getDataIntegrity = () => req<unknown[]>('/analytics/data-integrity'
 export const triggerStorm = (intensity: string, tide: number) =>
   req<unknown>('/simulation/trigger-storm', { method: 'POST', body: JSON.stringify({ intensity, tide_surge_m: tide }) });
 export const clearSimulated = () => req<unknown>('/simulation/clear-simulated', { method: 'POST' });
-export const resetDatabase = () => req<unknown>('/simulation/reset-demo-database', { method: 'POST' });
+export const resetDatabase = () => req<unknown>('/simulation/reset-database', { method: 'POST' });
+
+// ---------- IoT Hardware Integration ----------
+export interface IoTDevice {
+  id: string;
+  site_id: string;
+  is_simulated: boolean;
+  status: string;
+  last_seen: string | null;
+  battery_level: number | null;
+  signal_strength: number | null;
+  created_at: string;
+}
+
+export interface IoTSensorPayload {
+  device_id: string;
+  timestamp: string;
+  water_level_cm: number;
+  water_level_rate?: number;
+  rainfall_mm?: number;
+  camera_status?: string;
+  plastic_detection?: string;
+  battery_level?: number;
+  signal_strength?: number;
+}
+
+export const getIoTDevices = (siteId?: string) =>
+  req<IoTDevice[]>(`/iot/devices${siteId ? `?site_id=${siteId}` : ''}`);
+
+export const registerIoTDevice = (data: Partial<IoTDevice>) =>
+  req<IoTDevice>('/iot/devices', { method: 'POST', body: JSON.stringify(data) });
+
+export const ingestIoTSensorData = (payload: IoTSensorPayload) =>
+  req<{ status: string; device_id: string }>('/iot/ingest', { method: 'POST', body: JSON.stringify(payload) });
+
+// ---------- Centralized Hotspots & Geofencing ----------
+import type { UnifiedHotspot, HotspotSummary, SatelliteScene } from '../types';
+
+export const getHotspots = (params?: Record<string, string | number | boolean>) => {
+  const qs = params ? '?' + new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)])).toString() : '';
+  return req<UnifiedHotspot[]>(`/hotspots${qs}`);
+};
+
+export const getHotspotSummary = () => req<HotspotSummary>('/hotspots/summary');
+
+export const getHotspotDetail = (id: string) => req<{
+  hotspot: UnifiedHotspot;
+  detection_details: Record<string, unknown>;
+  associated_observations: UnifiedHotspot[];
+  associated_count: number;
+  cleanup_task?: unknown;
+}>(`/hotspots/${id}`);
+
+export const updateHotspot = (id: string, updates: Partial<UnifiedHotspot>) =>
+  req<UnifiedHotspot>(`/hotspots/${id}`, { method: 'PATCH', body: JSON.stringify(updates) });
+
+export const dispatchCleanupForHotspot = (id: string, teamName?: string) =>
+  req<{ status: string; task_id: number; hotspot_id: string }>(`/hotspots/${id}/dispatch-cleanup`, {
+    method: 'POST',
+    body: JSON.stringify({ team_name: teamName || 'BMC Quick Response Team' })
+  });
+
+export const getMumbaiBoundary = () => req<{
+  type: string;
+  properties: Record<string, unknown>;
+  geometry: { type: string; coordinates: number[][][] };
+}>('/hotspots/boundary');
+
+export const getUnlocatedQueue = () => req<UnifiedHotspot[]>('/hotspots/unlocated-queue');
+
+// ---------- Drone Monitoring (Model A) ----------
+export const uploadDroneImage = (formData: FormData) => {
+  return fetch(`${BASE}/drone/upload`, {
+    method: 'POST',
+    body: formData,
+  }).then(async r => {
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({ detail: r.statusText }));
+      throw new Error(err.detail || 'Drone image processing failed');
+    }
+    return r.json();
+  });
+};
+
+export const batchUploadDroneImages = (formData: FormData) => {
+  return fetch(`${BASE}/drone/batch-upload`, {
+    method: 'POST',
+    body: formData,
+  }).then(async r => {
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({ detail: r.statusText }));
+      throw new Error(err.detail || 'Batch processing failed');
+    }
+    return r.json();
+  });
+};
+
+// ---------- Drone Video Analysis (ReWater YOLOv8m) ----------
+export const getSampleDroneVideos = () => {
+  return req<any[]>('/drone/video/sample-videos');
+};
+
+export const uploadDroneVideo = (formData: FormData) => {
+  return fetch(`${BASE}/drone/video/upload-and-analyze`, {
+    method: 'POST',
+    body: formData,
+  }).then(async r => {
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({ detail: r.statusText }));
+      throw new Error(err.detail || 'Drone video analysis failed');
+    }
+    return r.json();
+  });
+};
+
+export const getDroneVideoJob = (jobId: string) => {
+  return req<any>(`/drone/video/jobs/${jobId}`);
+};
+
+export const cancelDroneVideoJob = (jobId: string) => {
+  return req<any>(`/drone/video/jobs/${jobId}/cancel`, { method: 'POST' });
+};
+
+export const retryDroneVideoJob = (jobId: string) => {
+  return req<any>(`/drone/video/jobs/${jobId}/retry`, { method: 'POST' });
+};
+
+// ---------- Field Worker Image Reporting (Module 3) ----------
+export const uploadWorkerReport = (formData: FormData) => {
+  return fetch(`${BASE}/worker/upload-report`, {
+    method: 'POST',
+    body: formData,
+  }).then(async r => {
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({ detail: r.statusText }));
+      throw new Error(err.detail || 'Report submission failed');
+    }
+    return r.json();
+  });
+};
+
+export const getWorkerReports = (status?: string) =>
+  req<UnifiedHotspot[]>(`/worker/reports${status ? `?review_status=${status}` : ''}`);
+
+export const updateWorkerReportAction = (reportId: string, action: string, notes?: string) => {
+  const form = new FormData();
+  form.append('action', action);
+  if (notes) form.append('notes', notes);
+  return fetch(`${BASE}/worker/reports/${reportId}/action`, {
+    method: 'POST',
+    body: form,
+  }).then(async r => {
+    if (!r.ok) throw new Error('Action failed');
+    return r.json();
+  });
+};
+
+// ---------- Satellite Marine Debris (Model B) ----------
+export const getSatelliteScenes = () => req<SatelliteScene[]>('/satellite/scenes');
+
+export const analyzeSatelliteUpload = (formData: FormData) => {
+  return fetch(`${BASE}/satellite/analyze-upload`, {
+    method: 'POST',
+    body: formData,
+  }).then(async r => {
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({ detail: r.statusText }));
+      throw new Error(err.detail || 'Satellite analysis failed');
+    }
+    return r.json();
+  });
+};
+
+export const analyzeSampleSatelliteScene = (sceneId: string, sourceStatus: string = 'Simulated') => {
+  const form = new FormData();
+  form.append('scene_id', sceneId);
+  form.append('source_status', sourceStatus);
+  return fetch(`${BASE}/satellite/analyze-sample-scene`, {
+    method: 'POST',
+    body: form,
+  }).then(async r => {
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({ detail: r.statusText }));
+      throw new Error(err.detail || 'Sample scene analysis failed');
+    }
+    return r.json();
+  });
+};
