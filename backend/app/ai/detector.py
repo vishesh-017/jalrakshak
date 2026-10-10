@@ -110,7 +110,7 @@ class RiverPlasticDetector:
     def detect_plastic(
         self,
         image_path: str,
-        confidence_threshold: float = 0.40,
+        confidence_threshold: float = 0.10,
         site_id: Optional[str] = None,
         model_type: str = "ground" # "ground" or "aerial"
     ) -> Dict[str, Any]:
@@ -142,7 +142,7 @@ class RiverPlasticDetector:
                 # Run YOLO with the specified threshold
                 results = self.yolo_model.predict(
                     source=img,
-                    conf=max(0.25, confidence_threshold - 0.10),
+                    conf=max(0.08, confidence_threshold - 0.02),
                     iou=0.45,
                     verbose=False
                 )
