@@ -41,7 +41,7 @@ export type RoleConfig = UserProfile;
 export const PERSONAS: Record<string, UserProfile> = {
   SUPER_ADMIN: {
     id: 'SUPER_ADMIN',
-    name: 'Dr. Iqbal S. Chahal, IAS',
+    name: 'Rahul',
     username: 'admin',
     role: 'SUPER_ADMIN',
     title: 'Municipal Commissioner & Disaster HQ',
