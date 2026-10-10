@@ -898,32 +898,25 @@ export default function DroneMonitoringPage() {
                       />
                     </div>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className="text-[11px] text-slate-400 mt-1 mb-2">
                     Or click on the map below to pinpoint the issue location dynamically.
                   </p>
+                  
+                  {/* Embedded Pinpoint Map */}
+                  <div className="border border-slate-700/60 rounded-lg overflow-hidden mt-2 mb-4">
+                    <div ref={mapContainerRef} className="w-full bg-slate-950 relative z-0" style={{ minHeight: '300px' }} />
+                  </div>
                 </div>
 
                 <Button
                   onClick={handleSingleSubmit}
                   disabled={singleLoading || !singleFile}
-                  className="w-full bg-sky-600 hover:bg-sky-500 text-white font-medium py-2.5"
+                  className="w-full bg-sky-600 hover:bg-sky-500 text-white font-medium py-2.5 mt-2"
                 >
                   {singleLoading ? 'Running Model Inference...' : 'Analyze Drone Photo'}
                 </Button>
                 {singleError && <ErrorMessage message={singleError} />}
               </CardContent>
-            </Card>
-
-            {/* Interactive Leaflet Map for Issue Pinning */}
-            <Card className="border-slate-800 bg-slate-900/90 shadow-xl overflow-hidden mt-6">
-              <CardHeader className="p-3 border-b border-slate-800 flex flex-row items-center justify-between">
-                <CardTitle className="text-xs font-semibold text-slate-300 flex items-center gap-2">
-                  <MapPin className="h-3.5 w-3.5 text-sky-400" />
-                  Point Issue on Map
-                </CardTitle>
-                <span className="text-[10px] text-slate-400">Click to pin location</span>
-              </CardHeader>
-              <div ref={mapContainerRef} className="h-48 w-full bg-slate-950" />
             </Card>
           </div>
 
