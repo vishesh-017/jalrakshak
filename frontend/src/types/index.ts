@@ -158,7 +158,7 @@ export interface SampleFeed {
   url: string;
 }
 
-export type HotspotSourceType = 'iot' | 'satellite' | 'drone' | 'field_worker';
+export type HotspotSourceType = 'iot' | 'drone' | 'field_worker';
 export type BoundaryStatus = 'VALID_MUMBAI' | 'OUTSIDE_BOUNDARY' | 'UNLOCATED_REVIEW';
 export type LocationMethod = 'GPS_EXIF' | 'GEOREFERENCED_RASTER' | 'IOT_REGISTERED_COORDINATE' | 'OPERATOR_PINNED' | 'UNLOCATED';
 

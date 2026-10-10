@@ -47,14 +47,12 @@ L.Icon.Default.mergeOptions({ iconRetinaUrl: '', iconUrl: '', shadowUrl: '' });
 
 const SOURCE_COLORS: Record<HotspotSourceType, string> = {
   iot: '#06b6d4',         // Cyan
-  satellite: '#a855f7',   // Purple
   drone: '#f59e0b',       // Amber
   field_worker: '#10b981' // Emerald
 };
 
 const SOURCE_LABELS: Record<HotspotSourceType, string> = {
   iot: 'IoT Sensor',
-  satellite: 'Satellite MSI',
   drone: 'Drone Aerial',
   field_worker: 'Field Worker'
 };
@@ -74,8 +72,6 @@ function createSourceMarker(source: HotspotSourceType, risk: RiskLevel, label: s
     iconSvg = `<path d="M16 20a4 4 0 0 1 8 0" stroke="${color}" stroke-width="2" fill="none"/><circle cx="20" cy="22" r="2.5" fill="${color}"/>`;
   } else if (source === 'drone') {
     iconSvg = `<circle cx="20" cy="20" r="3" fill="${color}"/><path d="M14 14l3 3m6 6l3 3m0-12l-3 3m-6 6l-3 3" stroke="${color}" stroke-width="1.8"/>`;
-  } else if (source === 'satellite') {
-    iconSvg = `<circle cx="20" cy="20" r="3" fill="${color}"/><ellipse cx="20" cy="20" rx="7" ry="3.5" fill="none" stroke="${color}" stroke-width="1.5" transform="rotate(-30 20 20)"/>`;
   } else if (source === 'field_worker') {
     iconSvg = `<circle cx="20" cy="18" r="2.5" fill="${color}"/><path d="M16 24c0-2 1.8-3.5 4-3.5s4 1.5 4 3.5" fill="${color}"/>`;
   }
@@ -152,7 +148,7 @@ export default function HotspotMapPage() {
         getHotspotSummary(),
         getMumbaiBoundary()
       ]);
-      setHotspots(hList);
+      setHotspots(hList.filter((h: any) => h.source_type !== 'satellite'));
       setSummary(sum);
       setBoundaryGeoJson(bound);
 
@@ -331,14 +327,6 @@ export default function HotspotMapPage() {
           </div>
 
           <div className="p-3 rounded-2xl bg-[#040c18] border border-cyan-500/20 shadow-md">
-            <span className="text-[10px] text-slate-400 font-semibold uppercase">Satellite Slicks</span>
-            <div className="text-xl font-black text-purple-400 font-mono mt-0.5">
-              {summary.source_breakdown?.satellite || 0}
-            </div>
-            <span className="text-[10px] text-purple-400">Model B Sentinel-2</span>
-          </div>
-
-          <div className="p-3 rounded-2xl bg-[#040c18] border border-cyan-500/20 shadow-md">
             <span className="text-[10px] text-slate-400 font-semibold uppercase">Field Worker Reports</span>
             <div className="text-xl font-black text-emerald-400 font-mono mt-0.5">
               {summary.source_breakdown?.field_worker || 0}
@@ -372,11 +360,10 @@ export default function HotspotMapPage() {
             </div>
 
             {/* Source Filter Tabs */}
-            <div className="grid grid-cols-5 gap-1 text-[10px] font-bold">
+            <div className="grid grid-cols-4 gap-1 text-[10px] font-bold">
               {[
                 { id: 'all', label: 'All' },
                 { id: 'iot', label: 'IoT' },
-                { id: 'satellite', label: 'Sat' },
                 { id: 'drone', label: 'Drone' },
                 { id: 'field_worker', label: 'Worker' },
               ].map(tab => (
