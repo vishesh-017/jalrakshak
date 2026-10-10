@@ -253,6 +253,41 @@ class RecoveryRecordResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+# ==================== IOT DEVICES ====================
+class IoTDeviceBase(BaseModel):
+    id: str
+    site_id: str
+    is_simulated: bool = True
+    status: str = "Offline"
+    battery_level: Optional[float] = None
+    signal_strength: Optional[float] = None
+
+class IoTDeviceCreate(IoTDeviceBase):
+    pass
+
+class IoTDeviceUpdate(BaseModel):
+    is_simulated: Optional[bool] = None
+    status: Optional[str] = None
+    last_seen: Optional[datetime.datetime] = None
+    battery_level: Optional[float] = None
+    signal_strength: Optional[float] = None
+
+class IoTDeviceResponse(IoTDeviceBase):
+    last_seen: Optional[datetime.datetime]
+    created_at: datetime.datetime
+    model_config = ConfigDict(from_attributes=True)
+
+class IoTSensorPayload(BaseModel):
+    device_id: str
+    timestamp: datetime.datetime
+    water_level_cm: float
+    water_level_rate: float = 0.0
+    rainfall_mm: Optional[float] = None
+    camera_status: str = "Operational"
+    plastic_detection: Optional[str] = None # "High", "Medium", "Low"
+    battery_level: Optional[float] = None
+    signal_strength: Optional[float] = None
+
 # ==================== OVERVIEW DASHBOARD METRICS ====================
 class DashboardOverviewMetrics(BaseModel):
     total_monitored_sites: int
@@ -266,3 +301,87 @@ class DashboardOverviewMetrics(BaseModel):
     high_priority_sites: List[MonitoringSiteResponse]
     risk_trend_recent: List[Dict[str, Any]]
     rainfall_accumulation_chart: List[Dict[str, Any]]
+
+# ==================== UNIFIED HOTSPOTS (ALL 3 MODULES) ====================
+class UnifiedHotspotBase(BaseModel):
+    title: str
+    source_type: str # "iot", "satellite", "drone", "field_worker"
+    source_status: SourceStatusType = "Real"
+    device_or_reporter_id: Optional[str] = None
+    site_id: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    boundary_status: str = "VALID_MUMBAI" # "VALID_MUMBAI", "OUTSIDE_BOUNDARY", "UNLOCATED_REVIEW"
+    boundary_notes: Optional[str] = None
+    location_method: str = "OPERATOR_PINNED" # "GPS_EXIF", "GEOREFERENCED_RASTER", "IOT_REGISTERED_COORDINATE", "OPERATOR_PINNED", "UNLOCATED"
+    coordinate_accuracy_m: Optional[float] = None
+    detection_result_json: str = "{}"
+    plastic_detected: bool = False
+    estimated_debris_kg: float = 0.0
+    confidence_avg: float = 0.0
+    water_level_m: Optional[float] = None
+    rainfall_mm: Optional[float] = None
+    evidence_url: Optional[str] = None
+    event_timestamp: Optional[datetime.datetime] = None
+    risk_score: float = 25.0
+    risk_category: str = "Low"
+    risk_explanation: str = ""
+    review_status: str = "Verified"
+    cleanup_status: str = "Unassigned"
+    cleanup_task_id: Optional[int] = None
+    parent_hotspot_id: Optional[str] = None
+    associated_observations_count: int = 1
+    notes: Optional[str] = None
+
+class UnifiedHotspotCreate(UnifiedHotspotBase):
+    id: Optional[str] = None
+
+class UnifiedHotspotUpdate(BaseModel):
+    title: Optional[str] = None
+    review_status: Optional[str] = None
+    cleanup_status: Optional[str] = None
+    cleanup_task_id: Optional[int] = None
+    risk_score: Optional[float] = None
+    risk_category: Optional[str] = None
+    risk_explanation: Optional[str] = None
+    notes: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    boundary_status: Optional[str] = None
+    location_method: Optional[str] = None
+
+class UnifiedHotspotResponse(UnifiedHotspotBase):
+    id: str
+    ingestion_timestamp: datetime.datetime
+    event_timestamp: datetime.datetime
+    model_config = ConfigDict(from_attributes=True)
+
+class DroneIngestRequest(BaseModel):
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    flight_id: Optional[str] = None
+    altitude_m: Optional[float] = None
+    notes: Optional[str] = None
+    source_status: SourceStatusType = "Real"
+
+class SatelliteIngestRequest(BaseModel):
+    provider: str = "Sentinel-2" # Sentinel-2, PlanetScope, Landsat-9
+    scene_id: str
+    acquisition_date: str
+    target_creek_area: str # Mithi, Malad, Thane, Gorai
+    raster_bounds: Dict[str, float] # min_lat, max_lat, min_lon, max_lon
+    detected_pixel_x: Optional[float] = None
+    detected_pixel_y: Optional[float] = None
+    slick_area_sqm: float = 120.0
+    confidence: float = 0.82
+    source_status: SourceStatusType = "Real"
+
+class WorkerReportCreate(BaseModel):
+    reporter_id: str
+    reporter_name: str
+    category: str # "Culvert Choke", "Floating Boom Jam", "Mangrove Plastic Slick", "Illegal Nullah Dumping"
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    location_description: Optional[str] = None
+    notes: Optional[str] = None
+    source_status: SourceStatusType = "Real"

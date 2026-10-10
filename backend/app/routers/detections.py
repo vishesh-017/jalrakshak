@@ -75,7 +75,7 @@ async def analyze_uploaded_media(
     file: UploadFile = File(...),
     site_id: Optional[str] = Form(None),
     model_type: str = Form("ground"), # "ground" or "aerial"
-    confidence_threshold: float = Form(0.35),
+    confidence_threshold: float = Form(0.10),
     source_status: str = Form("Real"),
     db: Session = Depends(get_db)
 ):
@@ -163,7 +163,7 @@ def analyze_sample_feed(
     sample_filename: str = Form(...),
     site_id: Optional[str] = Form(None),
     model_type: str = Form("ground"),
-    confidence_threshold: float = Form(0.35),
+    confidence_threshold: float = Form(0.10),
     source_status: str = Form("Simulated"),
     db: Session = Depends(get_db)
 ):

@@ -15,7 +15,13 @@ from app.routers import (
     cleanup,
     recovery,
     analytics,
-    simulation
+    simulation,
+    iot,
+    hotspots,
+    drone,
+    worker,
+    satellite,
+    monsoon
 )
 
 # Ensure directories exist before mount
@@ -66,6 +72,13 @@ app.include_router(cleanup.router, prefix=settings.API_V1_STR)
 app.include_router(recovery.router, prefix=settings.API_V1_STR)
 app.include_router(analytics.router, prefix=settings.API_V1_STR)
 app.include_router(simulation.router, prefix=settings.API_V1_STR)
+app.include_router(iot.router, prefix=settings.API_V1_STR)
+app.include_router(hotspots.router, prefix=settings.API_V1_STR)
+app.include_router(drone.router, prefix=settings.API_V1_STR)
+app.include_router(worker.router, prefix=settings.API_V1_STR)
+app.include_router(satellite.router, prefix=settings.API_V1_STR)
+app.include_router(monsoon.router, prefix=settings.API_V1_STR)
+
 
 @app.get("/")
 def root():

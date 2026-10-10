@@ -101,7 +101,11 @@ def create_sample_feed_images():
 import math
 
 def seed_database(db: Session):
-    # Check if already seeded
+    # Ensure unified hotspots are seeded if table is empty
+    if db.query(models.UnifiedHotspot).count() == 0:
+        seed_unified_hotspots_data(db)
+
+    # Check if sites already seeded
     if db.query(models.MonitoringSite).count() > 0:
         return
 
@@ -532,6 +536,112 @@ def seed_database(db: Session):
             source_status="Simulated" if "TRM" in s["id"] else "Real"
         ))
     db.commit()
+
+def seed_unified_hotspots_data(db: Session):
+    if db.query(models.UnifiedHotspot).count() == 0:
+        initial_hotspots = [
+            models.UnifiedHotspot(
+                id="HS-IOT-MTH01",
+                title="Automated IoT Sensor Telemetry — Mahim Causeway Boom",
+                source_type="iot",
+                source_status="Simulated",
+                device_or_reporter_id="ESP32-MTH-01",
+                site_id="MTH-01",
+                latitude=19.0435,
+                longitude=72.8415,
+                boundary_status="VALID_MUMBAI",
+                boundary_notes="Within approved Mumbai Municipal Operational Boundary",
+                location_method="IOT_REGISTERED_COORDINATE",
+                plastic_detected=True,
+                estimated_debris_kg=480.0,
+                confidence_avg=0.88,
+                water_level_m=1.85,
+                rainfall_mm=34.0,
+                evidence_url="/api/static/sample_feeds/mithi_mahim_boom_cctv.jpg",
+                risk_score=78.0,
+                risk_category="Critical",
+                risk_explanation="• Base monitoring baseline: 15 pts\n• High plastic accumulation (480.0 kg): +28 pts\n• Elevated water level at 1.85m: +16 pts\n• Moderate rainfall (34.0 mm): +12 pts\n• Downstream tidal bottleneck vulnerability: +10 pts",
+                review_status="Verified",
+                cleanup_status="Task Assigned",
+                cleanup_task_id=1,
+                notes="Automated IoT telemetry linked with creek camera. Simulated sensor node."
+            ),
+            models.UnifiedHotspot(
+                id="HS-DRN-MLD01",
+                title="Drone Aerial Survey — Malad Creek Mangrove Slicks",
+                source_type="drone",
+                source_status="Real",
+                device_or_reporter_id="DJI-MAVIC3-MUM-02",
+                site_id="MLD-01",
+                latitude=19.1845,
+                longitude=72.8210,
+                boundary_status="VALID_MUMBAI",
+                boundary_notes="Within approved Mumbai Municipal Operational Boundary",
+                location_method="GPS_EXIF",
+                coordinate_accuracy_m=2.5,
+                plastic_detected=True,
+                estimated_debris_kg=290.0,
+                confidence_avg=0.84,
+                evidence_url="/api/static/sample_feeds/malad_marve_drone_survey.jpg",
+                risk_score=62.0,
+                risk_category="High",
+                risk_explanation="• Base monitoring baseline: 15 pts\n• High plastic accumulation (290.0 kg, Model A Tiles): +28 pts\n• Mangrove creek bottleneck: +10 pts",
+                review_status="Verified",
+                cleanup_status="Unassigned",
+                notes="Pretrained Model A (deep_plastic_YoloV8) aerial inference. Real drone survey flight."
+            ),
+            models.UnifiedHotspot(
+                id="HS-SAT-THN01",
+                title="Sentinel-2 Candidate Debris Slick — Trombay Creek Outfall",
+                source_type="satellite",
+                source_status="Real",
+                device_or_reporter_id="Sentinel-2 MSI (ESA)",
+                site_id="TRM-01",
+                latitude=19.0340,
+                longitude=72.9280,
+                boundary_status="VALID_MUMBAI",
+                boundary_notes="Within approved Mumbai Municipal Operational Boundary",
+                location_method="GEOREFERENCED_RASTER",
+                coordinate_accuracy_m=10.0,
+                plastic_detected=True,
+                estimated_debris_kg=350.0,
+                confidence_avg=0.76,
+                evidence_url="/api/static/sample_feeds/trombay_canal_patrol.jpg",
+                risk_score=58.0,
+                risk_category="High",
+                risk_explanation="• Base monitoring baseline: 15 pts\n• High spectral FDI anomaly slick (700 m²): +28 pts\n• Multi-spectral anomaly verified: +15 pts",
+                review_status="Verified",
+                cleanup_status="Unassigned",
+                notes="Model B (MARIDA Sentinel-2 Pipeline). Notice: 10m/px resolution confirms macro-slick."
+            ),
+            models.UnifiedHotspot(
+                id="HS-WRK-DHR01",
+                title="Field Engineer Urgent Report — Dharavi 90ft Culvert Jam",
+                source_type="field_worker",
+                source_status="Real",
+                device_or_reporter_id="Eng. Amit Salvi (BMC-G-North)",
+                site_id="MTH-02",
+                latitude=19.0520,
+                longitude=72.8580,
+                boundary_status="VALID_MUMBAI",
+                boundary_notes="Within approved Mumbai Municipal Operational Boundary",
+                location_method="OPERATOR_PINNED",
+                plastic_detected=True,
+                estimated_debris_kg=520.0,
+                confidence_avg=0.91,
+                evidence_url="/api/static/sample_feeds/kurla_bkc_culvert_cam.jpg",
+                risk_score=82.0,
+                risk_category="Critical",
+                risk_explanation="• Base monitoring baseline: 15 pts\n• Severe plastic accumulation (520.0 kg, Model A Resize): +40 pts\n• High choke vulnerability: +15 pts\n• Culvert jam imminent: +12 pts",
+                review_status="Verified",
+                cleanup_status="Task Assigned",
+                cleanup_task_id=2,
+                notes="Submitted via Field Reporting interface. Photographic evidence confirmed."
+            )
+        ]
+        for spot in initial_hotspots:
+            db.add(spot)
+        db.commit()
 
     print("Database seeding completed successfully!")
 

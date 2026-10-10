@@ -213,6 +213,35 @@ def verify_recovery_record(
     db.refresh(record)
     return record
 
+# ==================== IOT DEVICES ====================
+
+def get_devices(db: Session, site_id: Optional[str] = None) -> List[models.IoTDevice]:
+    query = db.query(models.IoTDevice)
+    if site_id:
+        query = query.filter(models.IoTDevice.site_id == site_id)
+    return query.all()
+
+def get_device(db: Session, device_id: str) -> Optional[models.IoTDevice]:
+    return db.query(models.IoTDevice).filter(models.IoTDevice.id == device_id).first()
+
+def create_device(db: Session, device: schemas.IoTDeviceCreate) -> models.IoTDevice:
+    db_dev = models.IoTDevice(**device.model_dump())
+    db.add(db_dev)
+    db.commit()
+    db.refresh(db_dev)
+    return db_dev
+
+def update_device(db: Session, device_id: str, updates: schemas.IoTDeviceUpdate) -> Optional[models.IoTDevice]:
+    db_dev = get_device(db, device_id)
+    if not db_dev:
+        return None
+    update_data = updates.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_dev, key, value)
+    db.commit()
+    db.refresh(db_dev)
+    return db_dev
+
 # ==================== DASHBOARD METRICS ====================
 
 def get_dashboard_metrics(db: Session) -> Dict[str, Any]:
@@ -306,3 +335,113 @@ def get_dashboard_metrics(db: Session) -> Dict[str, Any]:
         "risk_trend_recent": risk_trend,
         "rainfall_accumulation_chart": rainfall_chart
     }
+
+# ==================== UNIFIED HOTSPOTS CRUD ====================
+from app.services.geospatial_service import haversine_distance_meters
+
+def get_hotspot(db: Session, hotspot_id: str) -> Optional[models.UnifiedHotspot]:
+    return db.query(models.UnifiedHotspot).filter(models.UnifiedHotspot.id == hotspot_id).first()
+
+def get_hotspots(
+    db: Session,
+    source_type: Optional[str] = None,
+    risk_category: Optional[str] = None,
+    boundary_status: Optional[str] = None,
+    review_status: Optional[str] = None,
+    cleanup_status: Optional[str] = None,
+    source_status: Optional[str] = None,
+    limit: int = 200
+) -> List[models.UnifiedHotspot]:
+    query = db.query(models.UnifiedHotspot)
+    if source_type:
+        query = query.filter(models.UnifiedHotspot.source_type == source_type)
+    if risk_category:
+        query = query.filter(models.UnifiedHotspot.risk_category == risk_category)
+    if boundary_status:
+        query = query.filter(models.UnifiedHotspot.boundary_status == boundary_status)
+    if review_status:
+        query = query.filter(models.UnifiedHotspot.review_status == review_status)
+    if cleanup_status:
+        query = query.filter(models.UnifiedHotspot.cleanup_status == cleanup_status)
+    if source_status:
+        query = query.filter(models.UnifiedHotspot.source_status == source_status)
+    return query.order_by(models.UnifiedHotspot.event_timestamp.desc()).limit(limit).all()
+
+def create_hotspot(db: Session, hotspot: schemas.UnifiedHotspotCreate) -> models.UnifiedHotspot:
+    import uuid
+    hotspot_id = hotspot.id or f"HS-{uuid.uuid4().hex[:8].upper()}"
+    db_hotspot = models.UnifiedHotspot(
+        id=hotspot_id,
+        title=hotspot.title,
+        source_type=hotspot.source_type,
+        source_status=hotspot.source_status,
+        device_or_reporter_id=hotspot.device_or_reporter_id,
+        site_id=hotspot.site_id,
+        latitude=hotspot.latitude,
+        longitude=hotspot.longitude,
+        boundary_status=hotspot.boundary_status,
+        boundary_notes=hotspot.boundary_notes,
+        location_method=hotspot.location_method,
+        coordinate_accuracy_m=hotspot.coordinate_accuracy_m,
+        detection_result_json=hotspot.detection_result_json,
+        plastic_detected=hotspot.plastic_detected,
+        estimated_debris_kg=hotspot.estimated_debris_kg,
+        confidence_avg=hotspot.confidence_avg,
+        water_level_m=hotspot.water_level_m,
+        rainfall_mm=hotspot.rainfall_mm,
+        evidence_url=hotspot.evidence_url,
+        event_timestamp=hotspot.event_timestamp or datetime.datetime.utcnow(),
+        risk_score=hotspot.risk_score,
+        risk_category=hotspot.risk_category,
+        risk_explanation=hotspot.risk_explanation,
+        review_status=hotspot.review_status,
+        cleanup_status=hotspot.cleanup_status,
+        cleanup_task_id=hotspot.cleanup_task_id,
+        parent_hotspot_id=hotspot.parent_hotspot_id,
+        associated_observations_count=hotspot.associated_observations_count,
+        notes=hotspot.notes
+    )
+    db.add(db_hotspot)
+    db.commit()
+    db.refresh(db_hotspot)
+    return db_hotspot
+
+def update_hotspot(db: Session, hotspot_id: str, updates: schemas.UnifiedHotspotUpdate) -> Optional[models.UnifiedHotspot]:
+    db_hotspot = get_hotspot(db, hotspot_id)
+    if not db_hotspot:
+        return None
+    for field, val in updates.model_dump(exclude_unset=True).items():
+        setattr(db_hotspot, field, val)
+    db.commit()
+    db.refresh(db_hotspot)
+    return db_hotspot
+
+def find_nearby_hotspot(
+    db: Session,
+    lat: float,
+    lon: float,
+    max_distance_meters: float = 75.0,
+    hours_window: int = 48
+) -> Optional[models.UnifiedHotspot]:
+    """
+    Finds existing active hotspot within proximity threshold and time window for cross-module association.
+    """
+    cutoff = datetime.datetime.utcnow() - datetime.timedelta(hours=hours_window)
+    candidates = db.query(models.UnifiedHotspot).filter(
+        models.UnifiedHotspot.boundary_status == "VALID_MUMBAI",
+        models.UnifiedHotspot.latitude.isnot(None),
+        models.UnifiedHotspot.longitude.isnot(None),
+        models.UnifiedHotspot.event_timestamp >= cutoff,
+        models.UnifiedHotspot.parent_hotspot_id.is_(None) # Root hotspots only
+    ).all()
+
+    closest_spot = None
+    min_dist = float("inf")
+    for spot in candidates:
+        if spot.latitude and spot.longitude:
+            dist = haversine_distance_meters(lat, lon, spot.latitude, spot.longitude)
+            if dist <= max_distance_meters and dist < min_dist:
+                min_dist = dist
+                closest_spot = spot
+
+    return closest_spot

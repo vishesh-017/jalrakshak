@@ -165,3 +165,54 @@ class RecoveryRecord(Base):
 
     site = relationship("MonitoringSite", back_populates="recovery_records")
     task = relationship("CleanupTask", back_populates="recovery_record")
+
+class IoTDevice(Base):
+    __tablename__ = "iot_devices"
+
+    id = Column(String, primary_key=True, index=True) # e.g. ESP32-MTH-01
+    site_id = Column(String, ForeignKey("monitoring_sites.id"), nullable=False, index=True)
+    is_simulated = Column(Boolean, default=True)
+    status = Column(String, default="Offline") # Online, Offline, Warning
+    last_seen = Column(DateTime, nullable=True)
+    battery_level = Column(Float, nullable=True)
+    signal_strength = Column(Float, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    site = relationship("MonitoringSite", backref="devices")
+
+class UnifiedHotspot(Base):
+    __tablename__ = "unified_hotspots"
+
+    id = Column(String, primary_key=True, index=True) # e.g. HS-MTH-01, HS-DRN-3B11
+    title = Column(String, nullable=False)
+    source_type = Column(String, nullable=False, index=True) # "iot", "satellite", "drone", "field_worker"
+    source_status = Column(String, nullable=False, default="Real", index=True) # "Real", "Simulated"
+    device_or_reporter_id = Column(String, nullable=True, index=True)
+    site_id = Column(String, ForeignKey("monitoring_sites.id"), nullable=True, index=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    boundary_status = Column(String, default="VALID_MUMBAI", index=True) # VALID_MUMBAI, OUTSIDE_BOUNDARY, UNLOCATED_REVIEW
+    boundary_notes = Column(String, nullable=True)
+    location_method = Column(String, default="OPERATOR_PINNED") # GPS_EXIF, GEOREFERENCED_RASTER, IOT_REGISTERED_COORDINATE, OPERATOR_PINNED, UNLOCATED
+    coordinate_accuracy_m = Column(Float, nullable=True)
+    detection_result_json = Column(Text, default="{}")
+    plastic_detected = Column(Boolean, default=False)
+    estimated_debris_kg = Column(Float, default=0.0)
+    confidence_avg = Column(Float, default=0.0)
+    water_level_m = Column(Float, nullable=True)
+    rainfall_mm = Column(Float, nullable=True)
+    evidence_url = Column(String, nullable=True)
+    event_timestamp = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    ingestion_timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+    risk_score = Column(Float, default=25.0)
+    risk_category = Column(String, default="Low", index=True) # Low, Medium, High, Critical
+    risk_explanation = Column(Text, default="")
+    review_status = Column(String, default="Verified", index=True) # Verified, Pending Review, Rejected
+    cleanup_status = Column(String, default="Unassigned", index=True) # Unassigned, Task Assigned, Cleaned Up
+    cleanup_task_id = Column(Integer, ForeignKey("cleanup_tasks.id"), nullable=True)
+    parent_hotspot_id = Column(String, nullable=True, index=True) # for deduplication association
+    associated_observations_count = Column(Integer, default=1)
+    notes = Column(Text, nullable=True)
+
+    site = relationship("MonitoringSite", backref="hotspots")
+    cleanup_task = relationship("CleanupTask", foreign_keys=[cleanup_task_id])

@@ -9,7 +9,7 @@ from app import crud, models, schemas
 from app.ai.forecaster import forecaster
 from app.seed_data import seed_database
 
-router = APIRouter(prefix="/simulation", tags=["Monsoon Simulation & Demo Engine"])
+router = APIRouter(prefix="/simulation", tags=["Monsoon Simulation Engine"])
 
 @router.post("/trigger-storm")
 def trigger_monsoon_downpour_simulation(
@@ -144,6 +144,7 @@ def clear_simulated_records(db: Session = Depends(get_db)):
         }
     }
 
+@router.post("/reset-database")
 @router.post("/reset-demo-database")
 def reset_database_to_initial_seed(db: Session = Depends(get_db)):
     """Resets the entire database back to default initial seed scenario."""

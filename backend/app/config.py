@@ -14,7 +14,7 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
         "*"
     ]
-    DEFAULT_CONFIDENCE_THRESHOLD: float = 0.35
+    DEFAULT_CONFIDENCE_THRESHOLD: float = 0.10
     DEFAULT_IOU_THRESHOLD: float = 0.45
     UPLOAD_DIR: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
     SAMPLES_DIR: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "sample_feeds")
