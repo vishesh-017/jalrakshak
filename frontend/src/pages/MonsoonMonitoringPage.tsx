@@ -14,7 +14,7 @@ import {
   ChevronDown, ChevronUp, Clock, User, Camera, FileText, Shield, ArrowUpRight
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { useRbac } from '../context/RbacContext';
+import { useRbac, PERSONAS } from '../context/RbacContext';
 
 const BASE = 'http://localhost:8000/api';
 
@@ -440,12 +440,20 @@ function IncidentPanel({ incident, onRefresh }: { incident: Incident; onRefresh:
             {incident.status === 'Open' && user.canApproveDispatch && (
               <div className="space-y-2">
                 <p className="text-[10px] font-bold text-slate-400 uppercase">Acknowledge & Assign Inspector</p>
-                <input
-                  className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"
-                  placeholder="Inspector name (optional)"
+                <select
+                  className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
                   value={inspectorName}
                   onChange={e => setInspectorName(e.target.value)}
-                />
+                >
+                  <option value="">-- Select an Inspector (Optional) --</option>
+                  {Object.values(PERSONAS)
+                    .filter(p => p.role === 'FIELD_WORKER' || p.role === 'INSPECTOR')
+                    .map(insp => (
+                      <option key={insp.id} value={insp.name}>
+                        {insp.name} — {insp.title}
+                      </option>
+                    ))}
+                </select>
                 <button
                   disabled={busy}
                   onClick={acknowledge}

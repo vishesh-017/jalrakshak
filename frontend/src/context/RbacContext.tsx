@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 export type UserRole =
   | 'SUPER_ADMIN'
   | 'FIELD_WORKER'
+  | 'INSPECTOR'
   | 'DRONE_OPERATOR'
   | 'ZONAL_OFFICER'
   // Legacy aliases
@@ -96,6 +97,29 @@ export const PERSONAS: Record<string, UserProfile> = {
     canSubmitFieldReport: true,
     canPilotDrone: false,
     description: 'Strictly authorized for Field Inspection reporting with photo evidence, GPS geotagging, and updating assigned cleanup task progress.'
+  },
+  INSPECTOR: {
+    id: 'INSPECTOR',
+    name: 'Suresh Patil (Monsoon Inspector)',
+    username: 'inspector',
+    role: 'INSPECTOR',
+    title: 'Senior Drainage Inspector',
+    badge: 'INSPECTOR',
+    badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40',
+    clearanceLevel: 'LEVEL 1 — GROUND OPS ONLY',
+    department: 'Monsoon Blockage Rapid Verification',
+    zoneScope: 'All Mumbai Basins (City-wide Command)',
+    allowedBasins: ['Mithi River Basin', 'Malad Creek Basin', 'Trombay / Thane Creek Basin'],
+    allowedRoutes: ['/monsoon', '/worker'],
+    homeRoute: '/monsoon',
+    avatarBg: 'from-indigo-600 to-purple-800',
+    canApproveDispatch: false,
+    canConfigureSensors: false,
+    canLogRecovery: true,
+    canEmergencyFlush: false,
+    canSubmitFieldReport: true,
+    canPilotDrone: false,
+    description: 'Specialized field inspector tasked with verifying suspected monsoon drainage blockages.'
   },
   DRONE_OPERATOR: {
     id: 'DRONE_OPERATOR',
