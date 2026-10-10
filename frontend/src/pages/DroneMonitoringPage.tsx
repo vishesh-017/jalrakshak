@@ -290,6 +290,35 @@ export default function DroneMonitoringPage() {
     }
   };
 
+  const handleGetCurrentLocation = () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const lat = parseFloat(position.coords.latitude.toFixed(6));
+        const lon = parseFloat(position.coords.longitude.toFixed(6));
+        setManualLat(lat);
+        setManualLon(lon);
+        
+        if (miniMapRef.current) {
+          miniMapRef.current.setView([lat, lon], 14);
+          if (markerRef.current) {
+            markerRef.current.setLatLng([lat, lon]);
+          } else {
+            const pinIcon = L.divIcon({
+              className: 'drone-waypoint-pin',
+              html: '<div style="background-color:#0284c7;width:14px;height:14px;border-radius:50%;border:2px solid #ffffff;box-shadow:0 0 10px rgba(2,132,199,0.9);"></div>',
+              iconSize: [14, 14],
+              iconAnchor: [7, 7]
+            });
+            markerRef.current = L.marker([lat, lon], { icon: pinIcon }).addTo(miniMapRef.current);
+          }
+        }
+      }, (error) => {
+        console.error("Error getting location", error);
+        alert("Could not access location. Please check browser permissions.");
+      });
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Top Banner */}
@@ -869,10 +898,20 @@ export default function DroneMonitoringPage() {
 
                 {/* Geolocation Section */}
                 <div className="space-y-2 border-t border-slate-800/80 pt-3">
-                  <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-sky-400" />
-                    Report Location (Optional)
-                  </span>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 text-sky-400" />
+                      Report Location (Optional)
+                    </span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleGetCurrentLocation}
+                      className="text-[10px] h-6 py-0 px-2 bg-slate-800/50 border-slate-700 text-sky-300 hover:bg-slate-700 hover:text-sky-200"
+                    >
+                      <Navigation className="w-3 h-3 mr-1" /> Use Current Location
+                    </Button>
+                  </div>
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
