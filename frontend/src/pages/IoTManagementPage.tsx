@@ -5,8 +5,10 @@ import { Button } from '../components/ui/Button';
 import { Activity, Battery, Signal, Radio, Settings2, RefreshCw } from 'lucide-react';
 import { getIoTDevices, getSites, ingestIoTSensorData, type IoTDevice } from '../lib/api';
 import type { MonitoringSite } from '../types';
+import { useRbac } from '../context/RbacContext';
 
 export default function IoTManagementPage() {
+  const { user } = useRbac();
   const [devices, setDevices] = useState<IoTDevice[]>([]);
   const [sites, setSites] = useState<MonitoringSite[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +21,11 @@ export default function IoTManagementPage() {
     try {
       const [d, s] = await Promise.all([getIoTDevices(), getSites()]);
       setDevices(d);
-      setSites(s);
+      
+      const filteredSites = user.zoneScope === 'All Mumbai Basins (City-wide Command)'
+        ? s
+        : s.filter(site => user.allowedBasins.includes(site.zone));
+      setSites(filteredSites);
     } catch (e) {
       console.error(e);
     } finally {

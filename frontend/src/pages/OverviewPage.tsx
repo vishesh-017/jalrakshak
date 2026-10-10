@@ -286,8 +286,18 @@ export default function OverviewPage() {
         getSites(),
         getCleanupTasks({ status: 'In Progress' })
       ]);
+      
+      const filteredSites = roleConfig.zoneScope === 'All Mumbai Basins (City-wide Command)'
+        ? s
+        : s.filter(site => roleConfig.allowedBasins.includes(site.zone));
+
+      if (roleConfig.zoneScope !== 'All Mumbai Basins (City-wide Command)') {
+        m.total_monitored_sites = filteredSites.length;
+        m.high_risk_outlets_count = filteredSites.filter(site => site.current_risk_score >= 60 || site.current_risk_level === 'Critical' || site.current_risk_level === 'High').length;
+      }
+
       setMetrics(m);
-      setSites(s);
+      setSites(filteredSites);
       setTasks(t.slice(0, 5));
       setLastRefreshed(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' IST');
     } catch (e: unknown) {

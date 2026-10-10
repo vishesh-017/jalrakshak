@@ -850,17 +850,23 @@ export default function MonsoonMonitoringPage() {
   const loadStations = useCallback(async () => {
     try {
       const data = await apiFetch<MonsoonStation[]>('/monsoon/stations');
-      setStations(data);
-      if (!selectedId && data.length > 0) setSelectedId(data[0].id);
+      const filtered = user.zoneScope === 'All Mumbai Basins (City-wide Command)' 
+        ? data 
+        : data.filter(s => user.allowedBasins.includes(s.zone));
+      setStations(filtered);
+      if (!selectedId && filtered.length > 0) setSelectedId(filtered[0].id);
     } catch { /* ignore */ }
-  }, [selectedId]);
+  }, [selectedId, user.zoneScope, user.allowedBasins]);
 
   const loadIncidents = useCallback(async () => {
     try {
       const data = await apiFetch<Incident[]>('/monsoon/incidents');
-      setIncidents(data);
+      const filtered = user.zoneScope === 'All Mumbai Basins (City-wide Command)'
+        ? data
+        : data.filter(i => user.allowedBasins.includes(i.zone));
+      setIncidents(filtered);
     } catch { /* ignore */ }
-  }, []);
+  }, [user.zoneScope, user.allowedBasins]);
 
   const loadSummary = useCallback(async () => {
     try {
