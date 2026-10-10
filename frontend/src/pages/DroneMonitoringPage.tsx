@@ -909,7 +909,7 @@ export default function DroneMonitoringPage() {
                       onClick={handleGetCurrentLocation}
                       className="text-[10px] h-6 py-0 px-2 bg-slate-800/50 border-slate-700 text-sky-300 hover:bg-slate-700 hover:text-sky-200"
                     >
-                      <Navigation className="w-3 h-3 mr-1" /> Use Current Location
+                      <MapPin className="w-3 h-3 mr-1" /> Use Current Location
                     </Button>
                   </div>
 
