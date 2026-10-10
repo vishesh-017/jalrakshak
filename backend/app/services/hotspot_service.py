@@ -18,7 +18,8 @@ def calculate_explainable_risk(
     confidence_avg: float = 0.5,
     water_level_m: Optional[float] = None,
     rainfall_mm: Optional[float] = None,
-    is_choke_point: bool = False
+    is_choke_point: bool = False,
+    source_type: str = "unknown"
 ) -> Dict[str, Any]:
     """
     Calculates explainable risk score (0-100) and generates human-readable factor breakdown.
@@ -86,6 +87,11 @@ def calculate_explainable_risk(
     if is_choke_point:
         score += 10.0
         factors.append("Downstream tidal choke point or trash boom blockage vulnerability: +10 pts")
+        
+    # 5. Field Worker Verification Escalation (up to 45 pts)
+    if source_type == "field_worker":
+        score += 45.0
+        factors.append("Direct Field Worker verification (Priority Escalation): +45 pts")
 
     score = min(100.0, max(5.0, score))
 
@@ -149,7 +155,8 @@ def ingest_unified_hotspot(
         confidence_avg=conf_avg,
         water_level_m=water_level_m,
         rainfall_mm=rainfall_mm,
-        is_choke_point=bool(site_id in ["MTH-01", "MTH-02", "MLD-01"])
+        is_choke_point=bool(site_id in ["MTH-01", "MTH-02", "MLD-01"]),
+        source_type=source_type
     )
 
     hotspot_id = f"HS-{source_type[:3].upper()}-{uuid.uuid4().hex[:6].upper()}"
