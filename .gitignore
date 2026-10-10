@@ -1,7 +1,16 @@
-﻿node_modules/
+node_modules/
 .env
 .venv
 __pycache__/
 dist/
 build/
 *.pyc
+*.log
+.pytest_cache/
+backend/uploads/*
+!backend/uploads/sample_drone_mumbai_nullah.mp4
+backend/app/static/uploads/*
+backend/uploads/video_frames/*
+
+backend/app/ai/weights/*.pt
+backend/uploads/*.mp4
