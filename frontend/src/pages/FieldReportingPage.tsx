@@ -473,7 +473,8 @@ export default function FieldReportingPage() {
               <CardContent className="pt-3">
                 <div
                   ref={mapContainerRef}
-                  className="w-full h-56 rounded-xl border border-cyan-500/20 overflow-hidden shadow-inner"
+                  className="w-full rounded-xl border border-cyan-500/20 overflow-hidden shadow-inner relative z-0"
+                  style={{ minHeight: '400px' }}
                 />
                 <p className="text-[10px] text-slate-400 mt-2">
                   Click anywhere on the map to set report coordinates. Detections outside the official Mumbai boundary will be flagged.

@@ -585,7 +585,7 @@ export default function DroneMonitoringPage() {
                 </CardTitle>
                 <span className="text-[10px] text-slate-400">Click to pin flight area</span>
               </CardHeader>
-              <div ref={mapContainerRef} className="h-48 w-full bg-slate-950" />
+              <div ref={mapContainerRef} className="w-full bg-slate-950 relative z-0" style={{ minHeight: '400px' }} />
             </Card>
           </div>
 
