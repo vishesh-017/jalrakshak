@@ -39,7 +39,7 @@ const ALL_NAV_SECTIONS: NavSection[] = [
     items: [
       { to: '/', label: 'Command Center', icon: LayoutDashboard },
       { to: '/map', label: 'Hotspot GIS Map', icon: MapPin },
-      { to: '/monsoon', label: 'Monsoon Blockage', icon: CloudRain, badge: 'NEW' },
+      { to: '/monsoon', label: 'IoT Smart Alerts', icon: CloudRain, badge: 'NEW' },
     ],
   },
   {

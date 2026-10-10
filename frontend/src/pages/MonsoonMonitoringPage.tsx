@@ -940,7 +940,7 @@ export default function MonsoonMonitoringPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <CloudRain className="w-5 h-5 text-indigo-400" />
-            <h1 className="text-xl font-black text-white">Monsoon Blockage Detection</h1>
+            <h1 className="text-xl font-black text-white">IoT Smart Alerts & Blockage Detection</h1>
             <span className="text-[10px] font-black px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 uppercase">BETA</span>
           </div>
           <p className="text-sm text-slate-400 max-w-2xl">
