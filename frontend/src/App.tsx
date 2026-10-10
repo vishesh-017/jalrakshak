@@ -1,130 +1,66 @@
-import { useState, useRef, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
+import LoginModal from './components/LoginModal';
+import AccessDenied from './components/AccessDenied';
 import OverviewPage from './pages/OverviewPage';
 import Simulator3DPage from './pages/Simulator3DPage';
 import HotspotMapPage from './pages/HotspotMapPage';
 import DetectionPage from './pages/DetectionPage';
 import ForecastPage from './pages/ForecastPage';
 import CleanupPage from './pages/CleanupPage';
-import RecoveryPage from './pages/RecoveryPage';
 import AnalyticsPage from './pages/AnalyticsPage';
-import EconomicsPage from './pages/EconomicsPage';
-import ModelCardPage from './pages/ModelCardPage';
-import SettingsPage from './pages/SettingsPage';
-import { RbacProvider, useRbac, ROLES, type UserRole } from './context/RbacContext';
-import { PanelLeftClose, PanelLeftOpen, Waves, Shield, ChevronDown, UserCheck, AlertTriangle } from 'lucide-react';
+import IoTManagementPage from './pages/IoTManagementPage';
+import DroneMonitoringPage from './pages/DroneMonitoringPage';
+import FieldReportingPage from './pages/FieldReportingPage';
+import SatelliteMonitoringPage from './pages/SatelliteMonitoringPage';
+import MonsoonMonitoringPage from './pages/MonsoonMonitoringPage';
+import { RbacProvider, useRbac } from './context/RbacContext';
+import { PanelLeftClose, PanelLeftOpen, Waves, Shield, KeyRound, UserCheck } from 'lucide-react';
 import { cn } from './lib/utils';
 
-function RbacRoleSelector() {
-  const { role, roleConfig, setRole } = useRbac();
-  const [open, setOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+function ProtectedRoute({ path, children }: { path: string; children: React.ReactNode }) {
+  const { isRouteAllowed, user } = useRbac();
+  const location = useLocation();
 
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+  if (!isRouteAllowed(path)) {
+    // If user is at root '/' but their role does not have access to root (e.g. Field Worker or Drone Operator),
+    // redirect smoothly to their home workspace
+    if (location.pathname === '/' && user.homeRoute !== '/') {
+      return <Navigate to={user.homeRoute} replace />;
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    return <AccessDenied path={path} />;
+  }
+  return <>{children}</>;
+}
 
-  const roleColors: Record<UserRole, { badge: string; border: string }> = {
-    COMMISSIONER: { badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', border: 'border-emerald-500/30' },
-    ZONAL_MITHI: { badge: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40', border: 'border-cyan-500/30' },
-    ZONAL_MALAD: { badge: 'bg-blue-500/20 text-blue-300 border-blue-500/40', border: 'border-blue-500/30' },
-    ZONAL_TROMBAY: { badge: 'bg-purple-500/20 text-purple-300 border-purple-500/40', border: 'border-purple-500/30' },
-    OPERATOR: { badge: 'bg-amber-500/20 text-amber-300 border-amber-500/40', border: 'border-amber-500/30' },
-  };
+function UserHeaderStatus() {
+  const { user, openLoginModal } = useRbac();
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setOpen(!open)}
-        className={cn(
-          'flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-[#071322] border hover:border-cyan-500/60 transition-all text-xs text-left shadow-xs',
-          roleColors[role].border
-        )}
-      >
-        <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-cyan-600 to-teal-800 flex items-center justify-center text-white shrink-0 shadow-xs">
-          <Shield className="w-3.5 h-3.5" />
+    <button
+      onClick={openLoginModal}
+      className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-[#071322] border border-cyan-500/30 hover:border-cyan-400 hover:bg-[#0a1b32] transition-all text-xs text-left shadow-xs group"
+      title="Click to switch role or view credentials"
+    >
+      <div className={cn('w-6 h-6 rounded-lg bg-gradient-to-br flex items-center justify-center text-white shrink-0 text-xs font-bold shadow-xs', user.avatarBg)}>
+        <Shield className="w-3.5 h-3.5" />
+      </div>
+      <div className="hidden sm:block">
+        <div className="flex items-center gap-1.5">
+          <span className="font-bold text-slate-100 text-[11px] truncate max-w-[130px] md:max-w-[160px]">
+            {user.name.split('(')[0]}
+          </span>
+          <span className={cn('text-[8.5px] font-black px-1.5 py-0.2 rounded uppercase border', user.badgeColor)}>
+            {user.badge}
+          </span>
         </div>
-        <div className="hidden sm:block">
-          <div className="flex items-center gap-1.5">
-            <span className="font-bold text-slate-100 text-[11px] truncate max-w-[140px] md:max-w-[170px]">
-              {roleConfig.title.split('(')[0]}
-            </span>
-            <span className={cn('text-[9px] font-black px-1 py-0.2 rounded uppercase border', roleColors[role].badge)}>
-              {roleConfig.badge}
-            </span>
-          </div>
-          <p className="text-[9.5px] text-cyan-400/80 truncate max-w-[170px]">
-            Scope: {roleConfig.zoneScope}
-          </p>
-        </div>
-        <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-0.5" />
-      </button>
-
-      {open && (
-        <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-[#050e1b] border border-cyan-900/60 shadow-2xl p-2 z-50 backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-150">
-          <div className="px-3 py-2 border-b border-cyan-950/80 mb-1">
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-cyan-400">
-              Select Operating Role (RBAC)
-            </p>
-            <p className="text-[10px] text-slate-400 mt-0.5">
-              Simulates multi-tier municipal officer authorization
-            </p>
-          </div>
-
-          <div className="space-y-1">
-            {(Object.keys(ROLES) as UserRole[]).map((rKey) => {
-              const rCfg = ROLES[rKey];
-              const isSelected = role === rKey;
-              return (
-                <button
-                  key={rKey}
-                  onClick={() => {
-                    setRole(rKey);
-                    setOpen(false);
-                  }}
-                  className={cn(
-                    'w-full text-left p-2.5 rounded-xl transition-all flex items-start gap-2.5',
-                    isSelected
-                      ? 'bg-cyan-950/60 border border-cyan-500/40 text-white'
-                      : 'hover:bg-slate-900/70 text-slate-300 hover:text-white border border-transparent'
-                  )}
-                >
-                  <div className={cn(
-                    'w-5 h-5 rounded-lg flex items-center justify-center shrink-0 mt-0.5',
-                    isSelected ? 'bg-cyan-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400'
-                  )}>
-                    <UserCheck className="w-3 h-3" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1">
-                      <span className="font-bold text-[11px] truncate text-slate-100">
-                        {rCfg.title}
-                      </span>
-                      <span className={cn('text-[8.5px] font-extrabold px-1 rounded uppercase border shrink-0', roleColors[rKey].badge)}>
-                        {rCfg.badge}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 truncate mt-0.5">
-                      {rCfg.department}
-                    </p>
-                    <p className="text-[9.5px] text-cyan-400/90 mt-0.5">
-                      📍 {rCfg.zoneScope}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
+        <p className="text-[9.5px] text-cyan-400/80 truncate max-w-[160px]">
+          {user.clearanceLevel.split('—')[0]}
+        </p>
+      </div>
+      <KeyRound className="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-300 shrink-0 ml-0.5" />
+    </button>
   );
 }
 
@@ -143,6 +79,9 @@ function MainLayout() {
 
   return (
     <div className="min-h-screen bg-[#020617] font-sans text-slate-100 antialiased flex selection:bg-cyan-500/30 selection:text-cyan-200">
+      {/* RBAC Login Modal */}
+      <LoginModal />
+
       {/* Navigation Sidebar */}
       <Sidebar collapsed={sidebarCollapsed} onToggleCollapse={toggleSidebar} />
 
@@ -170,7 +109,7 @@ function MainLayout() {
             </span>
             <span className="text-slate-600 hidden sm:inline">/</span>
             <span className="text-[11px] font-medium text-slate-300 hidden md:inline">
-              10 Monitored Stations · IoT Sonar + CCTV + Choke Beacons
+              10 Monitored Stations · Real ML Vision & Telemetry
             </span>
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40 hidden sm:inline">
               OPERATIONAL
@@ -196,25 +135,26 @@ function MainLayout() {
               <span className="font-mono text-[10px]">LIVE</span>
             </div>
 
-            {/* Interactive RBAC Role Selector Dropdown */}
-            <RbacRoleSelector />
+            {/* User Profile & Role Switcher */}
+            <UserHeaderStatus />
           </div>
         </header>
 
-        {/* Page Routing */}
+        {/* Page Routing (Role Protected) */}
         <main className="flex-1 p-4 md:p-6 bg-[#020617]">
           <Routes>
-            <Route path="/" element={<OverviewPage />} />
-            <Route path="/simulator" element={<Simulator3DPage />} />
-            <Route path="/map" element={<HotspotMapPage />} />
-            <Route path="/detection" element={<DetectionPage />} />
-            <Route path="/forecast" element={<ForecastPage />} />
-            <Route path="/cleanup" element={<CleanupPage />} />
-            <Route path="/recovery" element={<RecoveryPage />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
-            <Route path="/economics" element={<EconomicsPage />} />
-            <Route path="/model-card" element={<ModelCardPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/" element={<ProtectedRoute path="/"><OverviewPage /></ProtectedRoute>} />
+            <Route path="/detection" element={<ProtectedRoute path="/detection"><DetectionPage /></ProtectedRoute>} />
+            <Route path="/map" element={<ProtectedRoute path="/map"><HotspotMapPage /></ProtectedRoute>} />
+            <Route path="/drone" element={<ProtectedRoute path="/drone"><DroneMonitoringPage /></ProtectedRoute>} />
+            <Route path="/worker" element={<ProtectedRoute path="/worker"><FieldReportingPage /></ProtectedRoute>} />
+            <Route path="/satellite" element={<ProtectedRoute path="/satellite"><SatelliteMonitoringPage /></ProtectedRoute>} />
+            <Route path="/iot-management" element={<ProtectedRoute path="/iot-management"><IoTManagementPage /></ProtectedRoute>} />
+            <Route path="/forecast" element={<ProtectedRoute path="/forecast"><ForecastPage /></ProtectedRoute>} />
+            <Route path="/cleanup" element={<ProtectedRoute path="/cleanup"><CleanupPage /></ProtectedRoute>} />
+            <Route path="/analytics" element={<ProtectedRoute path="/analytics"><AnalyticsPage /></ProtectedRoute>} />
+            <Route path="/simulator" element={<ProtectedRoute path="/simulator"><Simulator3DPage /></ProtectedRoute>} />
+            <Route path="/monsoon" element={<ProtectedRoute path="/monsoon"><MonsoonMonitoringPage /></ProtectedRoute>} />
           </Routes>
         </main>
       </div>
@@ -231,4 +171,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
