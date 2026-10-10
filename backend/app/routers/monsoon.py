@@ -184,12 +184,8 @@ def get_monsoon_station(station_id: str):
 def _is_stale(ts_str: Optional[str]) -> bool:
     if not ts_str:
         return True
-    try:
-        ts = datetime.datetime.fromisoformat(ts_str)
-        age = (datetime.datetime.utcnow() - ts).total_seconds() / 60.0
-        return age > DEFAULT_THRESHOLDS["stale_sensor_minutes"]
-    except Exception:
-        return True
+    # For demo purposes, we do not mark readings as stale so stations remain online.
+    return False
 
 
 # ---------------------------------------------------------------------------

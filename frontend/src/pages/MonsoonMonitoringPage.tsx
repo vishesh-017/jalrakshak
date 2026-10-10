@@ -802,7 +802,7 @@ function ManualControls({ stationId, station, onSubmit }: {
             <span className={cn('text-sm font-bold text-indigo-300')}>{parseFloat(rainfall || '0').toFixed(2)} mm/h</span>
           </div>
           <input
-            type="range" min={0} max={80} step={0.5} value={rainfall}
+            type="range" min={0} max={80} step={0.5} value={isNaN(parseFloat(rainfall)) ? 0 : rainfall}
             onChange={e => setRainfall(e.target.value)}
             className="w-full accent-cyan-500"
           />
