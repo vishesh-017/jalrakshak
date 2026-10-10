@@ -117,14 +117,7 @@ function MainLayout() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Direct 3D Digital Twin Quick Link */}
-            <Link
-              to="/simulator"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-cyan-200 bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-500/40 transition-all shadow-xs shadow-cyan-950/50 hover:shadow-cyan-500/20"
-            >
-              <Waves className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-              <span>3D Sensor Twin</span>
-            </Link>
+
 
             {/* API Live Telemetry Indicator */}
             <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-500/40">

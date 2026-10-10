@@ -49,7 +49,7 @@ export default function DetectionPage() {
   const [selectedSiteId, setSelectedSiteId] = useState('');
   const [confidence, setConfidence] = useState(0.10);
   const [modelType, setModelType] = useState('yolov8m');
-  const [tab, setTab] = useState<'sample' | 'upload'>('sample');
+
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function loadAll() {
@@ -150,24 +150,6 @@ export default function DetectionPage() {
                 <Sliders className="w-3.5 h-3.5 text-cyan-400" />
                 Surveillance Source
               </span>
-              <div className="flex bg-[#030914] p-0.5 rounded-xl text-xs border border-cyan-950">
-                <button
-                  onClick={() => setTab('sample')}
-                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                    tab === 'sample' ? 'bg-cyan-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  CCTV Feeds
-                </button>
-                <button
-                  onClick={() => setTab('upload')}
-                  className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                    tab === 'upload' ? 'bg-cyan-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  Upload File
-                </button>
-              </div>
             </div>
 
             {/* Site Association Dropdown */}
@@ -210,76 +192,25 @@ export default function DetectionPage() {
             </div>
 
             {/* Mode Content */}
-            {tab === 'sample' ? (
-              <div className="space-y-2 pt-1">
-                <label className="text-[11px] font-semibold text-slate-300 block">
-                  Select Creek Camera Feed:
-                </label>
-                <div className="space-y-2">
-                  {samples.map(s => {
-                    const isSelected = selectedSample?.id === s.id;
-                    return (
-                      <div
-                        key={s.id}
-                        onClick={() => setSelectedSample(s)}
-                        className={`p-3 rounded-xl border cursor-pointer transition-all duration-150 flex items-center justify-between ${
-                          isSelected
-                            ? 'border-cyan-400 bg-cyan-950/80 shadow-md shadow-cyan-950/50'
-                            : 'border-cyan-950/70 bg-[#030914] hover:bg-[#071326]'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? 'bg-cyan-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400'}`}>
-                            <Camera className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <p className="text-xs font-bold text-white leading-tight">{s.name}</p>
-                            <p className="text-[10px] text-cyan-300/80 mt-0.5 font-mono">{s.source_type} · {s.site_id}</p>
-                          </div>
-                        </div>
-                        {isSelected && (
-                          <span className="text-[10px] font-extrabold text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/40">
-                            ACTIVE
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
+            <div className="space-y-3 pt-1">
+              <div
+                onClick={() => fileRef.current?.click()}
+                className="border-2 border-dashed border-cyan-500/40 rounded-xl p-8 text-center cursor-pointer hover:bg-cyan-950/30 transition-colors group"
+              >
+                <div className="w-12 h-12 rounded-full bg-cyan-950 group-hover:bg-cyan-900 flex items-center justify-center mx-auto mb-2 text-cyan-400 border border-cyan-500/30">
+                  <UploadCloud className="w-6 h-6" />
                 </div>
-
-                <Button
-                  onClick={runSampleAnalysis}
-                  loading={loading}
-                  className="w-full justify-center bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 hover:from-teal-500 hover:to-blue-500 text-white font-bold text-xs py-2.5 shadow-md shadow-cyan-950/50 mt-2"
-                >
-                  <Eye className="w-4 h-4 mr-1.5" />
-                  Run AI Plastic Detection
-                </Button>
-                <p className="text-[10px] text-slate-500 text-center">
-                  *Results labelled SIMULATED — operational calibration imagery
-                </p>
+                <p className="text-xs font-bold text-white">Drop an image here or click to browse</p>
+                <p className="text-[11px] text-slate-400 mt-1">Accepts JPG or PNG creek debris photos</p>
               </div>
-            ) : (
-              <div className="space-y-3 pt-1">
-                <div
-                  onClick={() => fileRef.current?.click()}
-                  className="border-2 border-dashed border-cyan-500/40 rounded-xl p-8 text-center cursor-pointer hover:bg-cyan-950/30 transition-colors group"
-                >
-                  <div className="w-12 h-12 rounded-full bg-cyan-950 group-hover:bg-cyan-900 flex items-center justify-center mx-auto mb-2 text-cyan-400 border border-cyan-500/30">
-                    <UploadCloud className="w-6 h-6" />
-                  </div>
-                  <p className="text-xs font-bold text-white">Drop an image here or click to browse</p>
-                  <p className="text-[11px] text-slate-400 mt-1">Accepts JPG or PNG creek debris photos</p>
-                </div>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept=".jpg,.jpeg,.png"
-                  className="hidden"
-                  onChange={e => { if (e.target.files?.[0]) runUploadAnalysis(e.target.files[0]); }}
-                />
-              </div>
-            )}
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".jpg,.jpeg,.png"
+                className="hidden"
+                onChange={e => { if (e.target.files?.[0]) runUploadAnalysis(e.target.files[0]); }}
+              />
+            </div>
           </div>
         </div>
 
@@ -297,7 +228,7 @@ export default function DetectionPage() {
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
                     <span className="font-mono text-[11px] font-bold tracking-wider text-cyan-300">
-                      CCTV FEED INSPECTION
+                      OPTICAL FEED INSPECTION
                     </span>
                     <span className="text-slate-600">|</span>
                     <span className="text-[11px] text-slate-300 font-mono">
@@ -367,25 +298,7 @@ export default function DetectionPage() {
                 </p>
               </div>
 
-              {/* 3D Digital Twin Simulation Gateway */}
-              <div className="p-4 rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-[#03152b] via-[#051e3b] to-[#03152b] shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-cyan-500 text-slate-950 shadow-md">
-                    <Waves className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-white">Dynamic 3D Water Pollution Scene</p>
-                    <p className="text-[11px] text-cyan-200/80">Visualize detected plastic items floating on animated water and deploy autonomous skimmer</p>
-                  </div>
-                </div>
-                <Link
-                  to="/simulator"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-teal-400 via-cyan-400 to-sky-400 hover:from-teal-300 hover:to-sky-300 shadow-md shrink-0 self-start sm:self-auto"
-                >
-                  <Waves className="w-3.5 h-3.5" />
-                  <span>Launch 3D Simulator</span>
-                </Link>
-              </div>
+
             </div>
           )}
 
@@ -398,7 +311,7 @@ export default function DetectionPage() {
                 Ready for Optical Surveillance Inference
               </h3>
               <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                Select one of the sample CCTV creek feeds on the left, or upload an image to trigger the YOLOv8 debris detection pipeline.
+                Upload an image to trigger the YOLOv8 debris detection pipeline.
               </p>
             </div>
           )}
@@ -420,10 +333,10 @@ export default function DetectionPage() {
                 <div key={d.id ?? i} className="px-4 py-2.5 flex items-center justify-between hover:bg-[#071326] transition-colors text-xs">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-cyan-300">{d.site_id ?? 'CCTV-01'}</span>
+                      <span className="font-mono font-bold text-cyan-300">{d.site_id ?? 'OPTICAL-01'}</span>
                       <span className="font-bold text-white">{d.total_objects_detected} items</span>
                     </div>
-                    <p className="text-[10px] text-slate-400 mt-0.5">{d.image_source_type}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{d.image_source_type?.replace(/CCTV/gi, 'Optical')}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-slate-400 font-mono">{fmtDateTime(d.timestamp)}</span>
