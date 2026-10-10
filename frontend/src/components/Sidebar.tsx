@@ -35,15 +35,20 @@ interface NavSection {
 
 const ALL_NAV_SECTIONS: NavSection[] = [
   {
-    title: 'SURVEILLANCE & AI DETECTION',
+    title: 'CORE COMMAND & MAPPING',
     items: [
       { to: '/', label: 'Command Center', icon: LayoutDashboard },
       { to: '/map', label: 'Hotspot GIS Map', icon: MapPin },
+      { to: '/monsoon', label: 'Monsoon Blockage', icon: CloudRain, badge: 'NEW' },
+    ],
+  },
+  {
+    title: 'DATA SOURCES & INPUTS',
+    items: [
       { to: '/drone', label: 'Drone Aerial (ReWater)', icon: Navigation, badge: 'VIDEO' },
       { to: '/worker', label: 'Field Reporting', icon: UserCheck, badge: 'BMC' },
       { to: '/satellite', label: 'Satellite Monitoring', icon: Orbit, badge: 'MARIDA' },
       { to: '/iot-management', label: 'IoT Live Monitoring', icon: Cpu, badge: 'LIVE' },
-      { to: '/monsoon', label: 'Monsoon Blockage', icon: CloudRain, badge: 'NEW' },
     ],
   },
   {
