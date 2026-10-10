@@ -253,6 +253,19 @@ export default function IoTManagementPage() {
                     <span className="text-slate-500 flex items-center gap-1"><Signal className="w-3.5 h-3.5"/> Signal (RSSI)</span>
                     <span className="text-slate-300 font-mono">{device.signal_strength ? `${device.signal_strength} dBm` : '--'}</span>
                   </div>
+                  <div className="flex justify-between pb-1 border-t border-cyan-900/30 pt-1 mt-1">
+                    <span className="text-slate-500">Zone</span>
+                    <span className="text-slate-300 font-medium truncate max-w-[150px]">{site?.zone || '--'}</span>
+                  </div>
+                  <div className="flex justify-between pb-1">
+                    <span className="text-slate-500">Risk Level</span>
+                    <span className={
+                      site?.current_risk_level === 'Critical' ? 'text-rose-400 font-bold' :
+                      site?.current_risk_level === 'High' ? 'text-orange-400 font-bold' :
+                      site?.current_risk_level === 'Medium' ? 'text-amber-400 font-bold' :
+                      'text-emerald-400 font-bold'
+                    }>{site?.current_risk_level || 'Unknown'}</span>
+                  </div>
                   <div className="flex justify-between pt-1 border-t border-slate-800/60 mt-1">
                     <span className="text-slate-500">Last Telemetry</span>
                     <span className="text-slate-300">{device.last_seen ? new Date(device.last_seen).toLocaleString() : 'Never'}</span>
